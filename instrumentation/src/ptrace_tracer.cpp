@@ -76,6 +76,26 @@ Result<u64> PtraceTracer::trace(TraceConfig cfg, recording::Session& session) {
         if (w < 0) break;
 
         if (WIFEXITED(st) || WIFSIGNALED(st)) {
+            // capture final memory checkpoint for the main process
+            if (w == pid) {
+                auto mr = memory::read_proc_maps(w);
+                if (mr.ok()) {
+                    std::vector<storage::CheckpointRegion> regions;
+                    for (const auto& r : mr.value().regions()) {
+                        storage::CheckpointRegion cr;
+                        cr.base = r.base; cr.size = r.size; cr.name = r.name;
+                        cr.readable = r.readable; cr.writable = r.writable; cr.executable = r.executable;
+                        if (r.readable && r.size > 0) {
+                            const u64 MAX_REGION_BYTES = 16 * 1024 * 1024;
+                            u64 toread = r.size > MAX_REGION_BYTES ? MAX_REGION_BYTES : r.size;
+                            auto br = memory::read_proc_mem(w, r.base, toread);
+                            if (br.ok()) cr.bytes = br.value();
+                        }
+                        regions.push_back(cr);
+                    }
+                    session.add_checkpoint(session.current_time().sequence, "final", regions);
+                }
+            }
             traced.erase(w);
             in_syscall.erase(w);
             // record exit
@@ -136,6 +156,26 @@ Result<u64> PtraceTracer::trace(TraceConfig cfg, recording::Session& session) {
                     SyscallEvent se; se.name = syscall_name(current_nr[w]); se.number = current_nr[w]; se.args = current_args[w];
                     ev.payload = se;
                     session.record_event(ev); event_count++;
+                    // capture checkpoint before process exits
+                    if (w == pid && (current_nr[w] == 60 || current_nr[w] == 231)) {
+                        auto mr = memory::read_proc_maps(w);
+                        if (mr.ok()) {
+                            std::vector<storage::CheckpointRegion> regions;
+                            for (const auto& r : mr.value().regions()) {
+                                storage::CheckpointRegion cr;
+                                cr.base = r.base; cr.size = r.size; cr.name = r.name;
+                                cr.readable = r.readable; cr.writable = r.writable; cr.executable = r.executable;
+                                if (r.readable && r.size > 0) {
+                                    const u64 MAX_REGION_BYTES = 16 * 1024 * 1024;
+                                    u64 toread = r.size > MAX_REGION_BYTES ? MAX_REGION_BYTES : r.size;
+                                    auto br = memory::read_proc_mem(w, r.base, toread);
+                                    if (br.ok()) cr.bytes = br.value();
+                                }
+                                regions.push_back(cr);
+                            }
+                            session.add_checkpoint(session.current_time().sequence, "final", regions);
+                        }
+                    }
                 } else {
                     in_syscall[w] = false;
                     Event ev; ev.type = EventType::SyscallExit; ev.pid = w; ev.tid = w; ev.timestamp = now_ts();
@@ -144,7 +184,8 @@ Result<u64> PtraceTracer::trace(TraceConfig cfg, recording::Session& session) {
                     ev.payload = se;
                     session.record_event(ev); event_count++;
                     syscall_count++;
-                    if (w == pid && syscall_count % 10 == 0) {
+                    bool is_exit = (current_nr[w] == 60 || current_nr[w] == 231);
+                    if (w == pid && (syscall_count % 10 == 0 || is_exit)) {
                         auto mr = memory::read_proc_maps(w);
                         if (mr.ok()) {
                             std::vector<storage::CheckpointRegion> regions;
