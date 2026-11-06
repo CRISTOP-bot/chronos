@@ -15,6 +15,7 @@ add_library(chronos_core STATIC
   memory/src/proc_maps.cpp
   timeline/src/timeline.cpp
   analysis/src/state_diff.cpp
+  analysis/src/metrics.cpp
 )
 
 target_include_directories(chronos_core PUBLIC

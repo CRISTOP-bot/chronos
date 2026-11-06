@@ -1,4 +1,5 @@
 #include "chronos/recording/session.h"
+#include <chrono>
 
 namespace chronos {
 namespace recording {
@@ -14,6 +15,8 @@ TimePoint Session::current_time() const {
 
 EventId Session::record_event(Event e) {
     if (e.time.sequence == 0) e.time.sequence = log_.size() + 1;
+    if (e.timestamp.count() == 0) e.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch());
     meta_.event_count = (u32)log_.size() + 1;
     return log_.append(std::move(e));
 }

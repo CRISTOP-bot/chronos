@@ -8,6 +8,7 @@
 #include "chronos/memory/checkpoint_restore.h"
 #include "chronos/timeline/timeline.h"
 #include "chronos/analysis/state_diff.h"
+#include "chronos/analysis/metrics.h"
 #include "nlohmann/json.hpp"
 #include <iostream>
 #include <string>
@@ -351,6 +352,26 @@ int main(int argc, char** argv) {
         std::cout << "Project: " << j.value("name", "?") << "\n";
         std::cout << "Recordings: " << j["recordings"].size() << "\n";
         for (auto& r : j["recordings"]) std::cout << "  - " << r.get<std::string>() << "\n";
+        return 0;
+    }
+    if (cmd == "stats") {
+        if (argc < 3) { std::cerr << "Usage: chronos_cli stats <recording>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        EventLog log;
+        for (auto& e : rec.events) log.append(e);
+        auto m = analysis::MetricsCalculator::compute(log);
+        std::cout << "Total events: " << m.total_events << "\n";
+        std::cout << "Events/sec (est): " << m.events_per_second << "\n";
+        std::cout << "Mean inter-event gap (ns): " << m.mean_inter_event_gap_ns << "\n";
+        std::cout << "Std inter-event gap (ns): " << m.std_inter_event_gap_ns << "\n";
+        std::cout << "Unique syscalls: " << m.unique_syscalls << "\n";
+        std::cout << "Memory change entropy (bits/byte): " << m.memory_change_entropy << "\n";
+        std::cout << "Syscall counts:\n";
+        for (auto& kv : m.syscall_counts) std::cout << "  " << kv.first << ": " << kv.second << "\n";
+        std::cout << "Events by type:\n";
+        for (auto& kv : m.events_by_type) std::cout << "  " << kv.first << ": " << kv.second << "\n";
         return 0;
     }
     std::cerr << "Unknown command: " << cmd << "\n";
