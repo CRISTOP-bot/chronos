@@ -9,6 +9,8 @@
 
 **Temporal Execution & Reconstruction Engine** — a real reverse-debugging and time-travel analysis tool for programs.
 
+🌐 **Languages:** [English](docs/README/README.en.md) · [Español](docs/README/README.es.md) · [Français](docs/README/README.fr.md) · [Deutsch](docs/README/README.de.md) · [中文](docs/README/README.zh.md)
+
 CHRONOS records, reconstructs and explores program executions over time. It is not a debugger clone: it is an engineering tool to understand what happened inside a program and recover previous states.
 
 ## Features
@@ -110,14 +112,6 @@ CHRONOS ships a minimal MCP server so AI assistants can use it as a tool.
 Exposed tools: `chronos_info`, `chronos_trace`, `chronos_search`, `chronos_state`, `chronos_checkpoints`, `chronos_memdiff`, `chronos_export_html`, `chronos_strings`.
 
 Full review: `docs/MCP_REVIEW.md`. Tested with OpenCode.
-
-## Languages
-
-- [English](docs/README/README.en.md)
-- [Español](docs/README/README.es.md)
-- [Français](docs/README/README.fr.md)
-- [Deutsch](docs/README/README.de.md)
-- [中文](docs/README/README.zh.md)
 
 ## Contributing
 
