@@ -111,6 +111,14 @@ Exposed tools: `chronos_info`, `chronos_trace`, `chronos_search`, `chronos_state
 
 Full review: `docs/MCP_REVIEW.md`. Tested with OpenCode.
 
+## Languages
+
+- [English](docs/README/README.en.md)
+- [Español](docs/README/README.es.md)
+- [Français](docs/README/README.fr.md)
+- [Deutsch](docs/README/README.de.md)
+- [中文](docs/README/README.zh.md)
+
 ## Contributing
 
 See `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`. Issue/PR templates are in `.github/`.
