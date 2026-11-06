@@ -1,5 +1,7 @@
 # CHRONOS
 
+![CI](https://github.com/CRISTOP-bot/chronos/actions/workflows/ci.yml/badge.svg)
+
 Temporal Execution & Reconstruction Engine — reverse debugging con capacidades de reconstrucción temporal.
 
 Estado: Fase 1 (fundación) completada. Ver docs/00_RESEARCH.md.
