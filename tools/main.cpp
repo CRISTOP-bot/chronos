@@ -14,6 +14,7 @@
 #include <map>
 #include <algorithm>
 #include <fstream>
+#include <filesystem>
 
 int main(int argc, char** argv) {
     using namespace chronos;
@@ -315,6 +316,41 @@ int main(int argc, char** argv) {
         out << j.dump(2) << "\n";
         out.close();
         std::cout << "Exported JSON to " << argv[3] << "\n";
+        return 0;
+    }
+    if (cmd == "project-create") {
+        if (argc < 4) { std::cerr << "Usage: chronos_cli project-create <dir> <name>\n"; return 1; }
+        std::filesystem::create_directories(argv[2]);
+        nlohmann::json j;
+        j["name"] = argv[3];
+        j["recordings"] = nlohmann::json::array();
+        std::ofstream out(std::string(argv[2]) + "/project.json");
+        out << j.dump(2) << "\n";
+        out.close();
+        std::cout << "Created project in " << argv[2] << "\n";
+        return 0;
+    }
+    if (cmd == "project-add") {
+        if (argc < 4) { std::cerr << "Usage: chronos_cli project-add <project.json> <recording>\n"; return 1; }
+        std::ifstream in(argv[2]);
+        nlohmann::json j; in >> j; in.close();
+        std::string rec = argv[3];
+        bool found = false;
+        for (auto& r : j["recordings"]) if (r == rec) { found = true; break; }
+        if (!found) j["recordings"].push_back(rec);
+        std::ofstream out(argv[2]);
+        out << j.dump(2) << "\n";
+        out.close();
+        std::cout << "Added recording to project\n";
+        return 0;
+    }
+    if (cmd == "project-info") {
+        if (argc < 3) { std::cerr << "Usage: chronos_cli project-info <project.json>\n"; return 1; }
+        std::ifstream in(argv[2]);
+        nlohmann::json j; in >> j; in.close();
+        std::cout << "Project: " << j.value("name", "?") << "\n";
+        std::cout << "Recordings: " << j["recordings"].size() << "\n";
+        for (auto& r : j["recordings"]) std::cout << "  - " << r.get<std::string>() << "\n";
         return 0;
     }
     std::cerr << "Unknown command: " << cmd << "\n";
