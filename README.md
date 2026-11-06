@@ -1,10 +1,11 @@
 # CHRONOS
 
-![CI](https://github.com/CRISTOP-bot/chronos/actions/workflows/ci.yml/badge.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)
-![Platform](https://img.shields.io/badge/platform-Linux%20x86__64-lightgrey.svg)
-![Qt6](https://img.shields.io/badge/GUI-Qt6-41cd52.svg)
+![CI](https://img.shields.io/github/actions/workflow/status/CRISTOP-bot/chronos/ci.yml?style=for-the-badge&label=BUILD)
+![License](https://img.shields.io/badge/LICENSE-MIT-00b4d8?style=for-the-badge)
+![C++](https://img.shields.io/badge/C%2B%2B-20-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
+![Qt](https://img.shields.io/badge/Qt-6-41CD52?style=for-the-badge&logo=qt&logoColor=white)
+![Platform](https://img.shields.io/badge/PLATFORM-Linux%20x86__64-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Stars](https://img.shields.io/github/stars/CRISTOP-bot/chronos?style=for-the-badge&color=ffcb2f)
 
 **Temporal Execution & Reconstruction Engine** — a real reverse-debugging and time-travel analysis tool for programs.
 
