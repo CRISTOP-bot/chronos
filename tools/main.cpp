@@ -1,0 +1,202 @@
+#include "chronos/common/types.h"
+#include "chronos/recording/recording_engine.h"
+#include "chronos/events/event.h"
+#include "chronos/events/event_log.h"
+#include "chronos/storage/writer.h"
+#include "chronos/instrumentation/ptrace_tracer.h"
+#include "chronos/memory/proc_maps.h"
+#include "chronos/timeline/timeline.h"
+#include "chronos/analysis/state_diff.h"
+#include <iostream>
+#include <string>
+#include <map>
+#include <algorithm>
+
+int main(int argc, char** argv) {
+    using namespace chronos;
+    std::cout << "CHRONOS " << "0.1.0" << " - Temporal Execution & Reconstruction Engine\n";
+    if (argc < 2) {
+        std::cout << "Usage: chronos_cli <command>\n";
+        std::cout << "Commands: demo, version\n";
+        return 0;
+    }
+    std::string cmd = argv[1];
+    if (cmd == "version") {
+        std::cout << "0.1.0\n";
+        return 0;
+    }
+    if (cmd == "trace") {
+        if (argc < 3) { std::cerr << "Usage: chronos_cli trace <binary> [output]\n"; return 1; }
+        std::string binary = argv[2];
+        std::string out = (argc>=4)? argv[3] : "trace.chronos";
+        recording::RecordingEngine eng;
+        recording::SessionConfig cfg{"trace", binary, 1};
+        auto sess = eng.create_session(cfg);
+        instrumentation::TraceConfig tcfg{binary, {}, out};
+        instrumentation::PtraceTracer tracer;
+        auto res = tracer.trace(tcfg, *sess);
+        if (!res.ok()) { std::cerr << "trace failed: " << res.error().message << "\n"; return 1; }
+        auto save = sess->save(out);
+        if (!save.ok()) { std::cerr << "save failed: " << save.error().message << "\n"; return 1; }
+        std::cout << "Traced " << res.value() << " events -> " << out << "\n";
+        return 0;
+    }
+    if (cmd == "demo") {
+        recording::RecordingEngine eng;
+        recording::SessionConfig cfg{"demo", "", 1};
+        auto sess = eng.create_session(cfg);
+        // record a few events
+        Event e1; e1.type = EventType::ProcessStart; e1.pid = 1; e1.tid = 1;
+        ProcessEvent pe; pe.pid=1; pe.tid=1; pe.detail="start"; e1.payload = pe;
+        sess->record_event(e1);
+
+        Event e2; e2.type = EventType::FunctionEnter; e2.pid=1; e2.tid=1;
+        FunctionEvent fe; fe.name="main"; fe.entry_address=0x1000; e2.payload = fe;
+        sess->record_event(e2);
+
+        Event e3; e3.type = EventType::VariableChange; e3.pid=1; e3.tid=1;
+        VariableEvent ve; ve.name="x"; ve.type_name="int"; ve.old_value="0"; ve.new_value="42"; ve.address=0x2000;
+        e3.payload = ve;
+        sess->record_event(e3);
+
+        std::string out = (argc>=3)? argv[2] : "demo.chronos";
+        auto res = sess->save(out);
+        if (!res.ok()) { std::cerr << "save failed: " << res.error().message << "\n"; return 1; }
+        std::cout << "Saved recording to " << out << " (" << sess->log().size() << " events)\n";
+
+        // reopen
+        auto rr = storage::Reader::read_recording(out);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        std::cout << "Reopened: " << rec.events.size() << " events, name=" << rec.metadata.name << "\n";
+        return 0;
+    }
+    if (cmd == "info") {
+        if (argc < 3) { std::cerr << "Usage: chronos_cli info <recording>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        std::cout << "name=" << rec.metadata.name << " events=" << rec.events.size() << " checkpoints=" << rec.checkpoints.size() << " target=" << rec.metadata.target_path << "\n";
+        // count by type
+        std::map<std::string,int> counts;
+        for (auto& e : rec.events) counts[event_type_name(e.type)]++;
+        for (auto& kv : counts) std::cout << "  " << kv.first << ": " << kv.second << "\n";
+        return 0;
+    }
+    if (cmd == "maps") {
+        if (argc < 3) { std::cerr << "Usage: chronos_cli maps <pid>\n"; return 1; }
+        int pid = std::stoi(argv[2]);
+        auto r = memory::read_proc_maps(pid);
+        if (!r.ok()) { std::cerr << "maps failed: " << r.error().message << "\n"; return 1; }
+        for (auto& reg : r.value().regions()) {
+            std::cout << std::hex << reg.base << "-" << (reg.base+reg.size) << " "
+                      << (reg.readable?"r":"-") << (reg.writable?"w":"-") << (reg.executable?"x":"-")
+                      << " " << reg.name << "\n";
+        }
+        return 0;
+    }
+    if (cmd == "search") {
+        if (argc < 4) { std::cerr << "Usage: chronos_cli search <recording> <text>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        timeline::Timeline tl;
+        // build an EventLog from events
+        EventLog log;
+        for (auto& e : rec.events) log.append(e);
+        tl.set_log(&log);
+        auto ids = tl.find_events(argv[3]);
+        std::cout << "matches=" << ids.size() << "\n";
+        for (auto id : ids) {
+            auto ev = log.by_id(id);
+            if (ev) std::cout << "  " << id << " " << event_type_name(ev->type) << "\n";
+        }
+        return 0;
+    }
+    if (cmd == "checkpoints") {
+        if (argc < 3) { std::cerr << "Usage: chronos_cli checkpoints <recording>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        std::cout << "checkpoints=" << rec.checkpoints.size() << "\n";
+        for (auto& cp : rec.checkpoints) {
+            std::cout << "  id=" << cp.id << " t=" << cp.time_sequence << " label=" << cp.label
+                      << " regions=" << cp.regions.size() << "\n";
+        }
+        return 0;
+    }
+    if (cmd == "branch") {
+        if (argc < 5) { std::cerr << "Usage: chronos_cli branch <src> <dst> <label>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        // create a new session copy
+        recording::RecordingEngine eng;
+        recording::SessionConfig cfg{"branch", rec.metadata.target_path, 1};
+        auto sess = eng.create_session(cfg);
+        for (auto& e : rec.events) sess->record_event(e);
+        for (auto& cp : rec.checkpoints) {
+            sess->add_checkpoint(cp.time_sequence, cp.label, cp.regions);
+        }
+        // add branch marker
+        Event m; m.type = EventType::Marker;
+        MarkerEvent me; me.label = argv[4]; me.note = "branch from " + std::string(argv[2]);
+        m.payload = me;
+        sess->record_event(m);
+        auto save = sess->save(argv[3]);
+        if (!save.ok()) { std::cerr << "save failed: " << save.error().message << "\n"; return 1; }
+        std::cout << "Branch saved to " << argv[3] << "\n";
+        return 0;
+    }
+    if (cmd == "memdiff") {
+        if (argc < 5) { std::cerr << "Usage: chronos_cli memdiff <recording> <cpA> <cpB>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        u64 a = std::stoull(argv[3]), b = std::stoull(argv[4]);
+        const storage::CheckpointRecord* cpa = nullptr;
+        const storage::CheckpointRecord* cpb = nullptr;
+        for (auto& cp : rec.checkpoints) { if (cp.id == a) cpa = &cp; if (cp.id == b) cpb = &cp; }
+        if (!cpa || !cpb) { std::cerr << "checkpoint not found\n"; return 1; }
+        std::cout << "Comparing checkpoint " << a << " vs " << b << "\n";
+        // added/removed regions by base
+        for (auto& ra : cpa->regions) {
+            const storage::CheckpointRegion* rb = nullptr;
+            for (auto& r : cpb->regions) if (r.base == ra.base) { rb = &r; break; }
+            if (!rb) { std::cout << "  removed region 0x" << std::hex << ra.base << " (" << std::dec << ra.size << " bytes)\n"; continue; }
+            // compare bytes
+            size_t n = std::min(ra.bytes.size(), rb->bytes.size());
+            size_t changed = 0;
+            for (size_t i = 0; i < n; ++i) if (ra.bytes[i] != rb->bytes[i]) changed++;
+            if (changed > 0 || ra.bytes.size() != rb->bytes.size()) {
+                std::cout << "  changed region 0x" << std::hex << ra.base << std::dec
+                          << ": " << changed << " bytes differ"
+                          << " (captured " << ra.bytes.size() << " vs " << rb->bytes.size() << ")\n";
+            }
+        }
+        for (auto& rb : cpb->regions) {
+            bool found = false;
+            for (auto& ra : cpa->regions) if (ra.base == rb.base) { found = true; break; }
+            if (!found) std::cout << "  added region 0x" << std::hex << rb.base << " (" << std::dec << rb.size << " bytes)\n";
+        }
+        return 0;
+    }
+    if (cmd == "state") {
+        if (argc < 4) { std::cerr << "Usage: chronos_cli state <recording> <eventIndex>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        EventLog log;
+        for (auto& e : rec.events) log.append(e);
+        u64 idx = std::stoull(argv[3]);
+        if (idx == 0 || idx > rec.events.size()) idx = rec.events.size();
+        auto snap = analysis::StateDiffer::build(log, TimePoint{idx});
+        std::cout << "State at event " << idx << ": " << snap.variables.size() << " variables\n";
+        for (auto& kv : snap.variables) {
+            std::cout << "  " << kv.first << " (" << kv.second.type_name << ") = " << kv.second.value << "\n";
+        }
+        return 0;
+    }
+    std::cerr << "Unknown command: " << cmd << "\n";
+    return 1;
+}

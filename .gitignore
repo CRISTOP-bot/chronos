@@ -1,0 +1,20 @@
+# Build artifacts
+build/
+*.o
+*.a
+*.so
+*.exe
+
+# Brand generated media (keep SVGs, ignore large binaries)
+brand/*.png
+brand/*.mp4
+brand/*.ico
+brand/icons/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
