@@ -27,6 +27,7 @@
 #include <QGraphicsLineItem>
 #include <QDialog>
 #include <QVBoxLayout>
+#include <QStackedWidget>
 
 using namespace chronos;
 using namespace chronos::gui;
@@ -67,8 +68,15 @@ void MainWindow::buildUi() {
     topBar->addWidget(statusLabel_);
     mainLayout->addLayout(topBar);
 
+    // Welcome page (simple)
+    welcomeLabel_ = new QLabel("Welcome to CHRONOS\\n\\nOpen a recording or trace a program to begin.", this);
+    welcomeLabel_->setAlignment(Qt::AlignCenter);
+    welcomeLabel_->setStyleSheet("font-size: 24px; color: #9aa0a6;");
+    mainLayout->addWidget(welcomeLabel_, 1);
+
     // Splitter: left events, right panels
-    auto* splitter = new QSplitter(Qt::Horizontal, this);
+    mainSplitter_ = new QSplitter(Qt::Horizontal, this);
+    mainSplitter_->setVisible(false);
 
     // Event log table
     eventTable_ = new QTableWidget(this);
@@ -77,7 +85,7 @@ void MainWindow::buildUi() {
     eventTable_->horizontalHeader()->setStretchLastSection(true);
     eventTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     connect(eventTable_, &QTableWidget::cellClicked, this, &MainWindow::onEventSelected);
-    splitter->addWidget(eventTable_);
+    mainSplitter_->addWidget(eventTable_);
 
     // Right: tab-like vertical stack
     auto* right = new QWidget(this);
@@ -163,9 +171,9 @@ void MainWindow::buildUi() {
     diffEdit_->setMaximumBlockCount(10000);
     rightLayout->addWidget(diffEdit_, 1);
 
-    splitter->addWidget(right);
-    splitter->setSizes({600, 600});
-    mainLayout->addWidget(splitter, 1);
+    mainSplitter_->addWidget(right);
+    mainSplitter_->setSizes({600, 600});
+    mainLayout->addWidget(mainSplitter_, 1);
 
     setCentralWidget(central);
     statusBar()->showMessage("Ready");
@@ -214,6 +222,8 @@ void MainWindow::loadRecording(const QString& path) {
     diffBButton_->setText("Set B");
     timeline_.set_log(&eventLog_);
     populateEvents();
+    if (welcomeLabel_) welcomeLabel_->hide();
+    if (mainSplitter_) mainSplitter_->setVisible(true);
     timelineSlider_->setRange(0, (int)recording_.events.size());
     timelineSlider_->setValue(0);
     statusLabel_->setText(QString("Loaded: %1 events, %2 checkpoints").arg(recording_.events.size()).arg(recording_.checkpoints.size()));

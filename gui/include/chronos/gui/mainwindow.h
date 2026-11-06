@@ -1,6 +1,7 @@
 #pragma once
 #include <QMainWindow>
 #include <QString>
+#include <QSplitter>
 #include "chronos/storage/writer.h"
 #include "chronos/events/event_log.h"
 #include "chronos/timeline/timeline.h"
@@ -40,6 +41,8 @@ private:
     chronos::timeline::Timeline timeline_{};
 
     QTableWidget* eventTable_ = nullptr;
+    QSplitter* mainSplitter_ = nullptr;
+    QLabel* welcomeLabel_ = nullptr;
     QSlider* timelineSlider_ = nullptr;
     QLabel* statusLabel_ = nullptr;
     QLabel* eventDetail_ = nullptr;
