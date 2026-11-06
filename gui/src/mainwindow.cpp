@@ -28,6 +28,7 @@
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QStackedWidget>
+#include <QTabWidget>
 
 using namespace chronos;
 using namespace chronos::gui;
@@ -88,27 +89,18 @@ void MainWindow::buildUi() {
     mainSplitter_->addWidget(eventTable_);
 
     // Right: tab-like vertical stack
-    auto* right = new QWidget(this);
-    auto* rightLayout = new QVBoxLayout(right);
-    rightLayout->setContentsMargins(0,0,0,0);
-
-    eventDetail_ = new QLabel("Select an event", this);
-    eventDetail_->setWordWrap(true);
-    eventDetail_->setMinimumHeight(60);
-    rightLayout->addWidget(eventDetail_);
-
-    auto* memLabel = new QLabel("Memory Explorer (checkpoint regions)", this);
-    rightLayout->addWidget(memLabel);
+    auto* rightTabs = new QTabWidget(this);
+    // Tab: Memory
+    auto* memTab = new QWidget(this);
+    auto* memLayout = new QVBoxLayout(memTab);
+    memLayout->setContentsMargins(8,8,8,8);
     memoryTree_ = new QTreeWidget(this);
     memoryTree_->setHeaderLabels({"Base", "Size", "Perms", "Name"});
     memoryTree_->header()->setStretchLastSection(true);
     connect(memoryTree_, &QTreeWidget::itemSelectionChanged, this, [this](){
         auto items = memoryTree_->selectedItems();
         if (items.isEmpty()) return;
-        // find matching region bytes in selected checkpoint
-        // We'll store pointer in item data
-        auto* it = items.first();
-        QByteArray ba = it->data(0, Qt::UserRole).toByteArray();
+        QByteArray ba = items.first()->data(0, Qt::UserRole).toByteArray();
         QString hex;
         for (int i = 0; i < ba.size(); i += 16) {
             QString line = QString("%1  ").arg(i, 4, 16, QChar('0'));
@@ -118,59 +110,64 @@ void MainWindow::buildUi() {
                     unsigned char b = (unsigned char)ba[i+j];
                     line += QString("%1 ").arg(b, 2, 16, QChar('0'));
                     ascii += (b >= 32 && b < 127) ? QChar(b) : QChar('.');
-                } else {
-                    line += "   ";
-                    ascii += " ";
-                }
+                } else { line += "   "; ascii += " "; }
             }
             hex += line + " " + ascii + "\n";
         }
         hexView_->setPlainText(hex);
     });
-    rightLayout->addWidget(memoryTree_, 1);
-
-    auto* hexLabel = new QLabel("Memory Hex Viewer", this);
-    rightLayout->addWidget(hexLabel);
+    memLayout->addWidget(memoryTree_, 1);
     hexView_ = new QPlainTextEdit(this);
     hexView_->setReadOnly(true);
     hexView_->setFont(QFont("Monospace", 9));
-    hexView_->setMaximumHeight(180);
-    rightLayout->addWidget(hexView_);
+    hexView_->setMaximumHeight(200);
+    memLayout->addWidget(hexView_);
+    rightTabs->addTab(memTab, "Memory");
 
-    auto* csLabel = new QLabel("Call Stack (up to selected event)", this);
-    rightLayout->addWidget(csLabel);
+    // Tab: Calls & Graph
+    auto* callTab = new QWidget(this);
+    auto* callLayout = new QVBoxLayout(callTab);
+    callLayout->setContentsMargins(8,8,8,8);
     callStackTree_ = new QTreeWidget(this);
     callStackTree_->setHeaderLabels({"Function", "Address"});
     callStackTree_->header()->setStretchLastSection(true);
-    callStackTree_->setMaximumHeight(160);
-    rightLayout->addWidget(callStackTree_);
-
-    auto* egLabel = new QLabel("Execution Graph (function calls)", this);
-    rightLayout->addWidget(egLabel);
+    callLayout->addWidget(callStackTree_, 1);
     execGraphTree_ = new QTreeWidget(this);
     execGraphTree_->setHeaderLabels({"Function", "Event #"});
     execGraphTree_->header()->setStretchLastSection(true);
-    execGraphTree_->setMaximumHeight(200);
-    rightLayout->addWidget(execGraphTree_);
+    callLayout->addWidget(execGraphTree_, 1);
+    rightTabs->addTab(callTab, "Calls");
 
-    auto* diffLabel = new QLabel("State Diff", this);
-    rightLayout->addWidget(diffLabel);
+    // Tab: State Diff
+    auto* diffTab = new QWidget(this);
+    auto* diffLayout = new QVBoxLayout(diffTab);
+    diffLayout->setContentsMargins(8,8,8,8);
     auto* diffBar = new QHBoxLayout();
     diffAButton_ = new QPushButton("Set A", this);
     diffBButton_ = new QPushButton("Set B", this);
-    diffButton_ = new QPushButton("Compare A vs B", this);
+    diffButton_ = new QPushButton("Compare", this);
     connect(diffAButton_, &QPushButton::clicked, this, &MainWindow::setDiffA);
     connect(diffBButton_, &QPushButton::clicked, this, &MainWindow::setDiffB);
     connect(diffButton_, &QPushButton::clicked, this, &MainWindow::runStateDiff);
     diffBar->addWidget(diffAButton_);
     diffBar->addWidget(diffBButton_);
     diffBar->addWidget(diffButton_);
-    rightLayout->addLayout(diffBar);
+    diffLayout->addLayout(diffBar);
     diffEdit_ = new QPlainTextEdit(this);
     diffEdit_->setReadOnly(true);
-    diffEdit_->setMaximumBlockCount(10000);
-    rightLayout->addWidget(diffEdit_, 1);
+    diffLayout->addWidget(diffEdit_, 1);
+    rightTabs->addTab(diffTab, "Diff");
 
+    eventDetail_ = new QLabel("Select an event", this);
+    eventDetail_->setWordWrap(true);
+    eventDetail_->setStyleSheet("background: #181a1e; padding: 8px; border: 1px solid #2a2e36; border-radius: 6px;");
+    eventDetail_->setMinimumHeight(60);
+
+    auto* right = new QWidget(this);
+    auto* rightLayout = new QVBoxLayout(right);
+    rightLayout->setContentsMargins(0,0,0,0);
+    rightLayout->addWidget(eventDetail_);
+    rightLayout->addWidget(rightTabs, 1);
     mainSplitter_->addWidget(right);
     mainSplitter_->setSizes({600, 600});
     mainLayout->addWidget(mainSplitter_, 1);
@@ -193,12 +190,25 @@ void MainWindow::applyDarkTheme() {
     p.setColor(QPalette::HighlightedText, QColor(255,255,255));
     qApp->setPalette(p);
     setStyleSheet(
-        "QTableWidget, QTreeWidget, QPlainTextEdit { border: 1px solid #2a2e36; }"
-        "QHeaderView::section { background: #1e2228; color: #dce0e8; padding: 4px; border: 0; }"
-        "QSlider::groove:horizontal { height: 6px; background: #2a2e36; }"
-        "QSlider::handle:horizontal { background: #4682b4; width: 14px; margin: -4px 0; border-radius: 7px; }"
-        "QPushButton { background: #24282e; border: 1px solid #3a3f47; padding: 6px 12px; }"
-        "QPushButton:hover { background: #2e333b; }"
+        "QWidget { font-family: 'DejaVu Sans', 'Segoe UI', sans-serif; font-size: 13px; }"
+        "QTableWidget, QTreeWidget, QPlainTextEdit { border: 1px solid #2a2e36; background: #181a1e; border-radius: 6px; }"
+        "QHeaderView::section { background: #1e2228; color: #dce0e8; padding: 6px; border: 0; font-weight: bold; }"
+        "QTableWidget::item:selected, QTreeWidget::item:selected { background: #2a3a4a; color: #ffffff; }"
+        "QSlider::groove:horizontal { height: 6px; background: #2a2e36; border-radius: 3px; }"
+        "QSlider::handle:horizontal { background: #4682b4; width: 16px; margin: -5px 0; border-radius: 8px; }"
+        "QPushButton { background: #24282e; border: 1px solid #3a3f47; padding: 8px 16px; border-radius: 6px; }"
+        "QPushButton:hover { background: #2e333b; border-color: #4682b4; }"
+        "QPushButton:pressed { background: #1a1e24; }"
+        "QTabWidget::pane { border: 1px solid #2a2e36; border-radius: 6px; background: #181a1e; }"
+        "QTabBar::tab { background: #14161a; color: #9aa0a6; padding: 8px 16px; border: 1px solid #2a2e36; border-bottom: none; border-top-left-radius: 6px; border-top-right-radius: 6px; margin-right: 2px; }"
+        "QTabBar::tab:selected { background: #1e2228; color: #4682b4; }"
+        "QTabBar::tab:hover { color: #dce0e8; }"
+        "QLabel { color: #dce0e8; }"
+        "QMenuBar { background: #14161a; color: #dce0e8; }"
+        "QMenuBar::item:selected { background: #24282e; }"
+        "QMenu { background: #1e2228; color: #dce0e8; border: 1px solid #2a2e36; }"
+        "QMenu::item:selected { background: #2a3a4a; }"
+        "QStatusBar { background: #14161a; color: #9aa0a6; }"
     );
 }
 
