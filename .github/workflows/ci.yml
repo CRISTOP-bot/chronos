@@ -14,7 +14,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake libelf-dev libdw-dev zlib1g-dev libzstd-dev
+          sudo apt-get install -y build-essential cmake libelf-dev libdw-dev zlib1g-dev libzstd-dev libgtest-dev
       - name: Configure
         run: cmake -S . -B build -DCHRONOS_BUILD_GUI=OFF -DCHRONOS_BUILD_BENCHMARKS=OFF
       - name: Build

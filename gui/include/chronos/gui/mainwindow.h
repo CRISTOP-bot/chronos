@@ -26,6 +26,8 @@ private slots:
     void onTimelineChanged(int value);
     void onEventSelected(int row);
     void runStateDiff();
+    void setDiffA();
+    void setDiffB();
     void showExecGraph();
 
 private:
@@ -47,8 +49,11 @@ private:
     QPlainTextEdit* diffEdit_ = nullptr;
     QPlainTextEdit* hexView_ = nullptr;
     QPushButton* diffButton_ = nullptr;
-    int diffA_ = 0;
-    int diffB_ = 0;
+    QPushButton* diffAButton_ = nullptr;
+    QPushButton* diffBButton_ = nullptr;
+    int selectedEventRow_ = -1;
+    int diffA_ = -1;
+    int diffB_ = -1;
 };
 
 } } // namespace

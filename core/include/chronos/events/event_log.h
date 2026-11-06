@@ -4,6 +4,7 @@
 #include <vector>
 #include <mutex>
 #include <optional>
+#include <unordered_map>
 
 namespace chronos {
 
@@ -27,6 +28,9 @@ public:
     // Range [from, to) by sequence index.
     std::vector<Event> range(size_t from, size_t to) const;
 
+    // Indices into the chronological event vector, maintained during append.
+    std::vector<size_t> indices_of_type(EventType type) const;
+
     // Clear all.
     void clear();
 
@@ -36,6 +40,7 @@ public:
 private:
     mutable std::mutex mtx_;
     std::vector<Event> events_;
+    std::unordered_map<EventType, std::vector<size_t>> type_indices_;
     EventId next_id_ = 1;
 };
 

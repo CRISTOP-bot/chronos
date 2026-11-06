@@ -148,8 +148,14 @@ void MainWindow::buildUi() {
     auto* diffLabel = new QLabel("State Diff", this);
     rightLayout->addWidget(diffLabel);
     auto* diffBar = new QHBoxLayout();
-    diffButton_ = new QPushButton("Diff A vs B (set A/B by selecting events)", this);
+    diffAButton_ = new QPushButton("Set A", this);
+    diffBButton_ = new QPushButton("Set B", this);
+    diffButton_ = new QPushButton("Compare A vs B", this);
+    connect(diffAButton_, &QPushButton::clicked, this, &MainWindow::setDiffA);
+    connect(diffBButton_, &QPushButton::clicked, this, &MainWindow::setDiffB);
     connect(diffButton_, &QPushButton::clicked, this, &MainWindow::runStateDiff);
+    diffBar->addWidget(diffAButton_);
+    diffBar->addWidget(diffBButton_);
     diffBar->addWidget(diffButton_);
     rightLayout->addLayout(diffBar);
     diffEdit_ = new QPlainTextEdit(this);
@@ -203,6 +209,9 @@ void MainWindow::loadRecording(const QString& path) {
     recording_ = rr.value();
     eventLog_.clear();
     for (auto& e : recording_.events) eventLog_.append(e);
+    diffA_ = diffB_ = selectedEventRow_ = -1;
+    diffAButton_->setText("Set A");
+    diffBButton_->setText("Set B");
     timeline_.set_log(&eventLog_);
     populateEvents();
     timelineSlider_->setRange(0, (int)recording_.events.size());
@@ -316,33 +325,41 @@ void MainWindow::onEventSelected(int row) {
         }
     }
     eventDetail_->setText(txt);
-    diffA_ = row; // last selected becomes A candidate; user can set B by selecting another then diff
+    selectedEventRow_ = row;
+}
+
+void MainWindow::setDiffA() {
+    if (selectedEventRow_ < 0) { diffEdit_->setPlainText("Select an event before setting A."); return; }
+    diffA_ = selectedEventRow_;
+    diffAButton_->setText(QString("A: event %1").arg(diffA_ + 1));
+}
+
+void MainWindow::setDiffB() {
+    if (selectedEventRow_ < 0) { diffEdit_->setPlainText("Select an event before setting B."); return; }
+    diffB_ = selectedEventRow_;
+    diffBButton_->setText(QString("B: event %1").arg(diffB_ + 1));
 }
 
 void MainWindow::runStateDiff() {
-    // Use first and last selected? We'll diff state at event index 0..current and current..end for demo
-    if (recording_.events.size() < 2) { diffEdit_->setPlainText("Need at least 2 events"); return; }
-    int a = 0;
-    int b = (int)recording_.events.size() - 1;
-    // Build EventLog views
-    EventLog la, lb;
-    for (int i = 0; i <= a && i < (int)recording_.events.size(); ++i) la.append(recording_.events[i]);
-    for (int i = 0; i <= b && i < (int)recording_.events.size(); ++i) lb.append(recording_.events[i]);
-    auto sa = analysis::StateDiffer::build(la, TimePoint{(u64)(a+1)});
-    auto sb = analysis::StateDiffer::build(lb, TimePoint{(u64)(b+1)});
-    auto d = analysis::StateDiffer::diff(sa, sb, lb);
-    QString out;
-    out += QString("Diff between event %1 and %2\n").arg(a+1).arg(b+1);
-    out += QString("Events between: %1\n").arg(d.events_between);
+    if (diffA_ < 0 || diffB_ < 0 || diffA_ >= (int)recording_.events.size() || diffB_ >= (int)recording_.events.size()) {
+        diffEdit_->setPlainText("Select an event and set both A and B first."); return;
+    }
+    const auto seqA = recording_.events[diffA_].time.sequence;
+    const auto seqB = recording_.events[diffB_].time.sequence;
+    const auto stateA = analysis::StateDiffer::build(eventLog_, TimePoint{seqA});
+    const auto stateB = analysis::StateDiffer::build(eventLog_, TimePoint{seqB});
+    const auto diff = analysis::StateDiffer::diff(stateA, stateB, eventLog_);
+    QString out = QString("Diff between event %1 and %2\nEvents between: %3\n")
+        .arg(diffA_ + 1).arg(diffB_ + 1).arg(diff.events_between);
     out += "Added variables:\n";
-    for (auto& v : d.added_variables) out += "  + " + QString::fromStdString(v) + "\n";
+    for (const auto& name : diff.added_variables) out += "  + " + QString::fromStdString(name) + "\n";
     out += "Removed variables:\n";
-    for (auto& v : d.removed_variables) out += "  - " + QString::fromStdString(v) + "\n";
+    for (const auto& name : diff.removed_variables) out += "  - " + QString::fromStdString(name) + "\n";
     out += "Changed variables:\n";
-    for (auto& c : d.changed_variables) out += QString("  ~ %1: %2 -> %3\n")
-        .arg(QString::fromStdString(c.first))
-        .arg(QString::fromStdString(c.second.first))
-        .arg(QString::fromStdString(c.second.second));
+    for (const auto& change : diff.changed_variables) out += QString("  ~ %1: %2 -> %3\n")
+        .arg(QString::fromStdString(change.first))
+        .arg(QString::fromStdString(change.second.first))
+        .arg(QString::fromStdString(change.second.second));
     diffEdit_->setPlainText(out);
 }
 

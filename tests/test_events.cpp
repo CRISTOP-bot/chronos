@@ -29,3 +29,25 @@ TEST(EventLog, Clear) {
     log.clear();
     EXPECT_EQ(log.size(),0u);
 }
+
+TEST(EventLog, TypeIndexTracksAppendAndClear) {
+    EventLog log;
+    Event variable; variable.type = EventType::VariableChange;
+    VariableEvent v; v.name = "x"; variable.payload = v;
+    const auto first = log.append(variable);
+    Event marker; marker.type = EventType::Marker; MarkerEvent m; m.label = "m"; marker.payload = m;
+    log.append(marker);
+    const auto third = log.append(variable);
+    const auto indices = log.indices_of_type(EventType::VariableChange);
+    ASSERT_EQ(indices.size(), 2u);
+    EXPECT_EQ(indices[0], 0u);
+    EXPECT_EQ(indices[1], 2u);
+    ASSERT_EQ(log.at(indices[0])->id, first);
+    ASSERT_EQ(log.at(indices[1])->id, third);
+    EXPECT_TRUE(log.indices_of_type(EventType::Unknown).empty());
+    log.clear();
+    EXPECT_TRUE(log.indices_of_type(EventType::VariableChange).empty());
+    log.append(variable);
+    ASSERT_EQ(log.indices_of_type(EventType::VariableChange).size(), 1u);
+    EXPECT_EQ(log.indices_of_type(EventType::VariableChange)[0], 0u);
+}

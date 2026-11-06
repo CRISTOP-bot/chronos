@@ -11,6 +11,7 @@ add_library(chronos_core STATIC
   recording/src/recording_engine.cpp
   execution/src/session_manager.cpp
   memory/src/region.cpp
+  memory/src/checkpoint_restore.cpp
   memory/src/proc_maps.cpp
   timeline/src/timeline.cpp
   analysis/src/state_diff.cpp

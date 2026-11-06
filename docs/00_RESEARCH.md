@@ -42,13 +42,13 @@ No disponible: `rr` (mozilla rr). Se evaluará implementar capacidades equivalen
 
 ## 4. Limitaciones conocidas
 
-- Sin instrumentación real aún (Fase 2). Actualmente sólo registro manual de eventos.
-- Sin replay determinista real; reconstrucción se basa en snapshots/eventos, no en re-ejecución bit-a-bit.
-- Sin GUI aún.
-- Formato binario v1 sin compresión ni bloques incrementales aún (planificado).
-- Soporte inicial: Linux x86_64, programas C simples.
-- Hilos: modelo de eventos por hilo existe, pero sincronización avanzada pendiente.
-- Memoria: seguimiento real de asignaciones/liberaciones pendiente (ptrace + hooks).
+- El tracer ptrace registra eventos de syscalls; esto no implica grabación completa de todas las fuentes de nondeterminismo.
+- Sin replay determinista real; la reconstrucción se limita a snapshots y eventos registrados, no a re-ejecución bit-a-bit.
+- Existe una GUI Qt6 funcional con exploración de eventos, memoria de checkpoints y análisis de estado; validar visualmente por separado.
+- El formato v2 y la persistencia de checkpoints están implementados; las capacidades incrementales no deben darse por supuestas.
+- Soporte inicial: Linux x86_64; el alcance exacto depende de la captura realizada.
+- Hilos: el modelo de eventos por hilo existe, pero sincronización avanzada pendiente.
+- La captura de memoria y sus límites dependen de lo realmente guardado en cada checkpoint.
 - Seguridad: grabaciones son datos pasivos; no se ejecutan.
 
 ## 5. Estructura definitiva
@@ -76,12 +76,7 @@ Próximo: Fase 3 checkpoints con snapshots de memoria y reconstrucción validada
 
 ## 8. Criterios de aceptación por fase
 
-Fase 1 (actual):
-- Proyecto compila con CMake.
-- Tipos fundamentales y sistema de eventos.
-- Pruebas unitarias pasan.
-- Almacenamiento binario round-trip con integridad CRC.
-- CLI demo guarda y reabre grabación.
+La compilación y los tests deben verificarse para el SHA actual; la existencia de código no prueba que compilen ni pasen.
 
 Fase 2:
 - Registrar eventos reales de un programa C.
@@ -101,3 +96,15 @@ Fase 6:
 
 Fase 7:
 - Benchmarks y pruebas de estrés/integridad.
+
+
+## 9. Estado verificado de checkpoints y timeline (2026-11-06)
+
+Esta sección describe el código actual de `main`; no implica que se haya validado mediante compilación local en un entorno sin toolchain.
+
+- `EventLog` mantiene un índice `EventType -> índices cronológicos` al añadir eventos. Las consultas de tipo recorren solo las coincidencias, y `clear()` elimina también los índices. La consulta textual sigue siendo lineal.
+- `Timeline::seek(TimePoint)` valida la posición 1-based y devuelve el evento correspondiente mediante `EventLog::at()`; las posiciones 0, fuera del log o un log ausente no producen evento.
+- `CheckpointRestorer` reconstruye una `MemoryMap` independiente a partir de bytes realmente incluidos en un `CheckpointRecord`, conservando nombre, permisos, base y tamaño, y rechazando datos capturados mayores que la región o rangos que desborden la dirección. `chronos_cli reconstruct <rec> <checkpointId>` informa las regiones y hasta 16 bytes de cada una.
+- La restauración es una vista/snapshot en memoria del depurador; no escribe en el espacio de direcciones de un proceso, no aplica eventos `MemoryWrite` entre checkpoints, no recupera bytes que el checkpoint no capturó ni constituye replay determinista. Si los checkpoints contienen solo snapshots, no se pueden inferir los bytes intermedios.
+- El State Diff GUI ofrece selección explícita de evento A y B. El diff actual compara variables registradas en eventos; no compara ni reconstruye memoria, pues `StateDiffer` todavía modela únicamente cambios de variables.
+- Se añadieron pruebas unitarias para el índice (incluido `clear`), el seek y restauración/validación de checkpoints. Ejecutar `cmake`, `ctest` y CI en un entorno con dependencias para confirmar la compilación y el comportamiento integrado.

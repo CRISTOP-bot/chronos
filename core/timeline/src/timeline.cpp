@@ -17,8 +17,12 @@ TimePoint Timeline::prev(TimePoint tp) const {
     TimePoint p; p.sequence = tp.sequence - 1; return p;
 }
 bool Timeline::valid(TimePoint tp) const {
-    if (!log_) return tp.sequence==0;
+    if (!log_) return tp.sequence == 0;
     return tp.sequence <= log_->size();
+}
+std::optional<Event> Timeline::seek(TimePoint tp) const {
+    if (!log_ || tp.sequence == 0 || !valid(tp)) return std::nullopt;
+    return log_->at(static_cast<size_t>(tp.sequence - 1));
 }
 CheckpointId Timeline::add_checkpoint(TimePoint tp, const std::string& label) {
     Checkpoint cp; cp.id = next_cp_++; cp.time = tp; cp.label = label;
@@ -33,8 +37,10 @@ std::optional<Checkpoint> Timeline::find_checkpoint(CheckpointId id) const {
 std::vector<EventId> Timeline::find_events(EventType type) const {
     std::vector<EventId> out;
     if (!log_) return out;
-    auto snap = log_->snapshot();
-    for (const auto& e : snap) if (e.type==type) out.push_back(e.id);
+    const auto snap = log_->snapshot();
+    for (const size_t index : log_->indices_of_type(type)) {
+        if (index < snap.size()) out.push_back(snap[index].id);
+    }
     return out;
 }
 std::vector<EventId> Timeline::find_events(const std::string& text) const {

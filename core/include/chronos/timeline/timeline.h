@@ -27,6 +27,8 @@ public:
     TimePoint next(TimePoint tp) const;
     TimePoint prev(TimePoint tp) const;
     bool valid(TimePoint tp) const;
+    // Returns the event at a 1-based event sequence, or null for invalid positions.
+    std::optional<Event> seek(TimePoint tp) const;
 
     // checkpoints
     CheckpointId add_checkpoint(TimePoint tp, const std::string& label);

@@ -24,7 +24,7 @@ TEST(Storage, RoundTrip) {
     events.push_back(e3);
 
     storage::RecordingMetadata meta; meta.name="t"; meta.target_path="prog"; meta.event_count=events.size();
-    std::string path = "/tmp/opencode/rt.chronos";
+    std::string path = "/tmp/chronos-rt.chronos";
     auto wr = storage::Writer::write_recording(path, meta, events);
     ASSERT_TRUE(wr.ok()) << wr.error().message;
 

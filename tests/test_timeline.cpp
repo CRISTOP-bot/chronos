@@ -28,3 +28,23 @@ TEST(Timeline, CheckpointAndFind) {
     auto ids = tl.find_events(EventType::VariableChange);
     EXPECT_EQ(ids.size(), 1u);
 }
+
+TEST(Timeline, SeekValidatesAndReturnsEvent) {
+    EventLog log;
+    Event first; first.type = EventType::Marker; MarkerEvent m; m.label = "first"; first.payload = m; log.append(first);
+    Event second; second.type = EventType::Custom; CustomEvent c; c.kind = "second"; second.payload = c; log.append(second);
+    timeline::Timeline tl(&log);
+    EXPECT_FALSE(tl.seek(TimePoint{0}).has_value());
+    EXPECT_EQ(std::get<MarkerEvent>(tl.seek(TimePoint{1})->payload).label, "first");
+    EXPECT_EQ(std::get<CustomEvent>(tl.seek(TimePoint{2})->payload).kind, "second");
+    EXPECT_FALSE(tl.seek(TimePoint{3}).has_value());
+    EXPECT_TRUE(tl.valid(TimePoint{1}));
+}
+
+TEST(Timeline, SeekOnEmptyOrDetachedLogReturnsNoEvent) {
+    timeline::Timeline detached;
+    EXPECT_FALSE(detached.seek(TimePoint{1}).has_value());
+    EventLog empty;
+    timeline::Timeline timeline(&empty);
+    EXPECT_FALSE(timeline.seek(TimePoint{1}).has_value());
+}
