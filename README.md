@@ -1,34 +1,103 @@
 # CHRONOS
 
 ![CI](https://github.com/CRISTOP-bot/chronos/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Linux%20x86__64-lightgrey.svg)
+![Qt6](https://img.shields.io/badge/GUI-Qt6-41cd52.svg)
 
-Temporal Execution & Reconstruction Engine — reverse debugging con capacidades de reconstrucción temporal.
+**Temporal Execution & Reconstruction Engine** — a real reverse-debugging and time-travel analysis tool for programs.
 
-Estado: Fase 1 (fundación) completada. Ver docs/00_RESEARCH.md.
+CHRONOS records, reconstructs and explores program executions over time. It is not a debugger clone: it is an engineering tool to understand what happened inside a program and recover previous states.
 
-## Compilar
+## Features
+
+- **Real recording** via `ptrace`: captures syscalls, process lifecycle and memory maps.
+- **Temporal navigation**: forward/backward through an indexed event timeline.
+- **Checkpoints** with memory snapshots (regions + bytes).
+- **State reconstruction**: variables and memory at any point in time.
+- **State Diff**: compare two temporal positions (variables, memory, events).
+- **Execution Graph**: visual call tree (GUI + CLI search).
+- **Memory Explorer**: addresses, regions, permissions, hex dump.
+- **Analytical branches**: create investigation branches from recordings.
+- **Binary format** (v2) with zstd compression, CRC32 integrity and versioning.
+- **Desktop GUI** (Qt6): dark, minimal, technical interface.
+- **CLI** with commands: `trace`, `info`, `maps`, `checkpoints`, `memdiff`, `state`, `search`, `branch`, `export-html`.
+- **HTML reports** export.
+- **Benchmarks** for storage performance.
+
+## Quick Start
+
+### Build
 
 ```bash
-cmake -S . -B build
+git clone https://github.com/CRISTOP-bot/chronos.git
+cd chronos
+cmake -S . -B build -DCHRONOS_BUILD_GUI=ON
 cmake --build build
 ```
 
-## Ejecutar tests
+### Run tests
 
 ```bash
 cd build && ctest
 ```
 
-## Demo
+### Trace a program
 
 ```bash
-./build/tools/chronos_cli demo /tmp/opencode/demo.chronos
 ./build/tools/chronos_cli trace /tmp/opencode/hello /tmp/opencode/hello.chronos
 ./build/tools/chronos_cli info /tmp/opencode/hello.chronos
-./build/tools/chronos_cli checkpoints /tmp/opencode/hello.chronos
-./build/tools/chronos_cli memdiff /tmp/opencode/hello.chronos 1 2
-./build/tools/chronos_cli state /tmp/opencode/d2.chronos 3
-./build/tools/chronos_cli search /tmp/opencode/hello.chronos write
-./build/tools/chronos_cli maps $$
-./build/tools/chronos_cli branch /tmp/opencode/hello.chronos /tmp/opencode/branch.chronos label
 ```
+
+### Open the GUI
+
+```bash
+./build/gui/chronos_cli /tmp/opencode/hello.chronos  # or chronos_gui
+```
+
+## CLI Commands
+
+| Command | Description |
+|---|---|
+| `demo` | Record a small demo and reopen it |
+| `trace <bin> [out]` | Trace a binary with ptrace |
+| `info <rec>` | Show recording stats |
+| `maps <pid>` | Read /proc maps |
+| `checkpoints <rec>` | List checkpoints |
+| `memdiff <rec> <a> <b>` | Compare memory between checkpoints |
+| `state <rec> <idx>` | Reconstruct variable state |
+| `search <rec> <text>` | Search events |
+| `branch <src> <dst> <label>` | Create an analytical branch |
+| `export-html <rec> <out>` | Export HTML report |
+
+## Project Structure
+
+```
+chronos/
+├── CMakeLists.txt
+├── core/          # common, events, recording, execution, memory, timeline, analysis, storage
+├── instrumentation/ # ptrace tracer
+├── debugger/      # (planned)
+├── gui/           # Qt6 interface
+├── tools/         # CLI
+├── tests/         # unit + integration tests
+├── benchmarks/    # performance benchmarks
+├── docs/          # research & architecture
+└── brand/         # logo and assets
+```
+
+## Architecture
+
+See `docs/00_RESEARCH.md` for the full technical research, architecture, limitations and roadmap.
+
+## Limitations (honest)
+
+- No full deterministic replay yet; reconstruction is event/snapshot based.
+- GUI is functional but still growing (Fase 6).
+- Initial platform: Linux x86_64.
+- Thread support is partial.
+
+## License
+
+MIT — see `LICENSE`.
