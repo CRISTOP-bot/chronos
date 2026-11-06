@@ -99,6 +99,20 @@ See `docs/00_RESEARCH.md` for the full technical research, architecture, limitat
 - Initial platform: Linux x86_64.
 - Thread support is partial.
 
+## MCP (Model Context Protocol)
+
+CHRONOS ships a minimal MCP server so AI assistants can use it as a tool.
+
+```bash
+./mcp.sh /path/to/chronos_cli
+```
+
+Exposed tools: `chronos_info`, `chronos_trace`, `chronos_search`, `chronos_state`, `chronos_checkpoints`, `chronos_memdiff`, `chronos_export_html`.
+
+## Contributing
+
+See `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`. Issue/PR templates are in `.github/`.
+
 ## License
 
 MIT — see `LICENSE`.
