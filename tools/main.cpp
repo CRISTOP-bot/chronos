@@ -24,7 +24,14 @@ int main(int argc, char** argv) {
     std::cout << "CHRONOS " << "0.1.0" << " - Temporal Execution & Reconstruction Engine\n";
     if (argc < 2) {
         std::cout << "Usage: chronos_cli <command>\n";
-        std::cout << "Commands: demo, version, trace, info, maps, search, checkpoints, reconstruct, memdiff, state, branch, export-html, export-json\n";
+        std::cout << "Commands:\n";
+        std::cout << "  Recording:   trace, demo\n";
+        std::cout << "  Inspection:  info, search, checkpoints, state, stats\n";
+        std::cout << "  Memory:      reconstruct, memdiff, strings, maps\n";
+        std::cout << "  Analysis:    diff\n";
+        std::cout << "  Export:      export-html, export-json\n";
+        std::cout << "  Projects:    project-create, project-add, project-info\n";
+        std::cout << "  Branches:    branch\n";
         return 0;
     }
     std::string cmd = argv[1];
@@ -388,10 +395,10 @@ int main(int argc, char** argv) {
         auto res = memory::CheckpointRestorer::restore(*cp);
         if (!res.ok()) { std::cerr << "restore failed: " << res.error().message << "\n"; return 1; }
         auto mm = res.value();
-        std::cout << "Reconstructed checkpoint " << id << " (" << mm.regions().size() << " regions)\\n";
+        std::cout << "Reconstructed checkpoint " << id << " (" << mm.regions().size() << " regions)\n";
         for (auto& r : mm.regions()) {
             std::cout << "  0x" << std::hex << r.base << std::dec << " size=" << r.size
-                      << " captured=" << r.data.size() << " " << r.name << "\\n";
+                      << " captured=" << r.data.size() << " " << r.name << "\n";
         }
         return 0;
     }
@@ -415,6 +422,41 @@ int main(int argc, char** argv) {
                 std::cout << s << "\n";
             }
         }
+        return 0;
+    }
+    if (cmd == "diff") {
+        if (argc < 5) { std::cerr << "Usage: chronos_cli diff <recording> <eventA> <eventB>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        EventLog log;
+        for (auto& e : rec.events) log.append(e);
+        u64 idxA = std::stoull(argv[3]);
+        u64 idxB = std::stoull(argv[4]);
+        if (idxA == 0 || idxA > rec.events.size()) idxA = 1;
+        if (idxB == 0 || idxB > rec.events.size()) idxB = rec.events.size();
+        const auto seqA = rec.events[idxA - 1].time.sequence;
+        const auto seqB = rec.events[idxB - 1].time.sequence;
+        auto snapA = analysis::StateDiffer::build(log, TimePoint{seqA});
+        auto snapB = analysis::StateDiffer::build(log, TimePoint{seqB});
+        auto d = analysis::StateDiffer::diff(snapA, snapB, log);
+        std::cout << "Diff event #" << idxA << " → #" << idxB
+                  << "  (" << d.events_between << " events between)\n";
+        if (!d.added_variables.empty()) {
+            std::cout << "Added variables:\n";
+            for (auto& n : d.added_variables) std::cout << "  + " << n << "\n";
+        }
+        if (!d.removed_variables.empty()) {
+            std::cout << "Removed variables:\n";
+            for (auto& n : d.removed_variables) std::cout << "  - " << n << "\n";
+        }
+        if (!d.changed_variables.empty()) {
+            std::cout << "Changed variables:\n";
+            for (auto& c : d.changed_variables)
+                std::cout << "  ~ " << c.first << ": " << c.second.first << " -> " << c.second.second << "\n";
+        }
+        if (d.added_variables.empty() && d.removed_variables.empty() && d.changed_variables.empty())
+            std::cout << "(no variable changes between these events)\n";
         return 0;
     }
     std::cerr << "Unknown command: " << cmd << "\n";

@@ -135,6 +135,19 @@ TOOLS = [
         },
     },
     {
+        "name": "chronos_diff",
+        "description": "State diff between two event indices in a recording.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "recording": {"type": "string"},
+                "a": {"type": "integer"},
+                "b": {"type": "integer"},
+            },
+            "required": ["recording", "a", "b"],
+        },
+    },
+    {
         "name": "chronos_branch",
         "description": "Create an analytical branch from a recording.",
         "inputSchema": {
@@ -219,6 +232,8 @@ def handle(msg):
             text = run_cli(["stats", args["recording"]])
         elif name == "chronos_export_json":
             text = run_cli(["export-json", args["recording"], args["output"]])
+        elif name == "chronos_diff":
+            text = run_cli(["diff", args["recording"], str(args["a"]), str(args["b"])])
         elif name == "chronos_branch":
             text = run_cli(["branch", args["source"], args["output"], args["label"]])
         elif name == "chronos_project_info":
