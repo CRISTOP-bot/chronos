@@ -5,7 +5,7 @@ CHRONOS ships a minimal Model Context Protocol (MCP) server (`mcp/mcp_server.py`
 
 ## Tested With
 - OpenCode (MCP client) — all tools invoked successfully.
-- Python integration test: `tests/test_mcp.py` (8/8 tools).
+- Python integration test: `tests/test_mcp.py` (13/13 tools).
 
 ## Tools Exposed
 1. `chronos_info` — recording stats.
@@ -16,6 +16,11 @@ CHRONOS ships a minimal Model Context Protocol (MCP) server (`mcp/mcp_server.py`
 6. `chronos_memdiff` — compare memory between checkpoints.
 7. `chronos_export_html` — export HTML report.
 8. `chronos_strings` — extract readable strings.
+9. `chronos_reconstruct` — reconstruct memory from checkpoint.
+10. `chronos_stats` — execution metrics.
+11. `chronos_export_json` — export JSON.
+12. `chronos_branch` — create analytical branch.
+13. `chronos_project_info` — project info.
 
 ## Test Results
 - initialize: OK

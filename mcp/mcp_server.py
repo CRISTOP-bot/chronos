@@ -101,6 +101,61 @@ TOOLS = [
             "required": ["recording", "checkpoint"],
         },
     },
+    {
+        "name": "chronos_reconstruct",
+        "description": "Reconstruct memory regions from a checkpoint.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "recording": {"type": "string"},
+                "checkpoint": {"type": "integer"},
+            },
+            "required": ["recording", "checkpoint"],
+        },
+    },
+    {
+        "name": "chronos_stats",
+        "description": "Compute execution metrics for a recording.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"recording": {"type": "string"}},
+            "required": ["recording"],
+        },
+    },
+    {
+        "name": "chronos_export_json",
+        "description": "Export a recording to JSON.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "recording": {"type": "string"},
+                "output": {"type": "string"},
+            },
+            "required": ["recording", "output"],
+        },
+    },
+    {
+        "name": "chronos_branch",
+        "description": "Create an analytical branch from a recording.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "source": {"type": "string"},
+                "output": {"type": "string"},
+                "label": {"type": "string"},
+            },
+            "required": ["source", "output", "label"],
+        },
+    },
+    {
+        "name": "chronos_project_info",
+        "description": "Show project info.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"project": {"type": "string"}},
+            "required": ["project"],
+        },
+    },
 ]
 
 
@@ -153,6 +208,16 @@ def handle(msg):
             if args.get("filter"):
                 cmd.append(args["filter"])
             text = run_cli(cmd)
+        elif name == "chronos_reconstruct":
+            text = run_cli(["reconstruct", args["recording"], str(args["checkpoint"])])
+        elif name == "chronos_stats":
+            text = run_cli(["stats", args["recording"]])
+        elif name == "chronos_export_json":
+            text = run_cli(["export-json", args["recording"], args["output"]])
+        elif name == "chronos_branch":
+            text = run_cli(["branch", args["source"], args["output"], args["label"]])
+        elif name == "chronos_project_info":
+            text = run_cli(["project-info", args["project"]])
         else:
             text = f"Unknown tool: {name}"
         return {
