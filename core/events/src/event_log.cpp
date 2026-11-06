@@ -47,7 +47,7 @@ std::vector<Event> EventLog::range(size_t from, size_t to) const {
     if (from > events_.size()) from = events_.size();
     if (to > events_.size()) to = events_.size();
     if (from >= to) return {};
-    return std::vector<Event>(events_.begin() + from, events_.begin() + to);
+    return std::vector<Event>(events_.begin() + static_cast<std::ptrdiff_t>(from), events_.begin() + static_cast<std::ptrdiff_t>(to));
 }
 
 void EventLog::clear() {

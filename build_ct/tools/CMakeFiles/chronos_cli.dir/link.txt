@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/chronos_cli.dir/link.d CMakeFiles/chronos_cli.dir/main.cpp.o -o chronos_cli  ../core/libchronos_core.a ../instrumentation/libchronos_instrumentation.a ../core/libchronos_core.a -lz -lzstd

@@ -8,8 +8,8 @@ namespace chronos {
 template <typename T>
 class Result {
 public:
-    Result(T value) : data_(std::move(value)) {}
-    Result(Error err) : data_(std::move(err)) {}
+    explicit Result(T value) : data_(std::move(value)) {}
+    explicit Result(Error err) : data_(std::move(err)) {}
 
     bool ok() const { return std::holds_alternative<T>(data_); }
     T& value() { return std::get<T>(data_); }
@@ -31,7 +31,7 @@ template <>
 class Result<void> {
 public:
     Result() : err_(Error::none()) {}
-    Result(Error err) : err_(std::move(err)) {}
+    explicit Result(Error err) : err_(std::move(err)) {}
     bool ok() const { return err_.ok(); }
     Error& error() { return err_; }
     const Error& error() const { return err_; }

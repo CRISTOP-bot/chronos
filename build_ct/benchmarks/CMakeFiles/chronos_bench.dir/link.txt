@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/chronos_bench.dir/link.d CMakeFiles/chronos_bench.dir/bench_storage.cpp.o -o chronos_bench  ../core/libchronos_core.a -lz -lzstd

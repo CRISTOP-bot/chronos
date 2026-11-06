@@ -1,0 +1,107 @@
+{
+  "tests": 13,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "EventLog",
+      "tests": 4,
+      "testsuite": [
+        {
+          "name": "AppendAndRetrieve",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_events.cpp",
+          "line": 8
+        },
+        {
+          "name": "Range",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_events.cpp",
+          "line": 19
+        },
+        {
+          "name": "Clear",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_events.cpp",
+          "line": 26
+        },
+        {
+          "name": "TypeIndexTracksAppendAndClear",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_events.cpp",
+          "line": 33
+        }
+      ]
+    },
+    {
+      "name": "Storage",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "RoundTrip",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_storage.cpp",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "name": "Timeline",
+      "tests": 4,
+      "testsuite": [
+        {
+          "name": "Navigation",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_timeline.cpp",
+          "line": 8
+        },
+        {
+          "name": "CheckpointAndFind",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_timeline.cpp",
+          "line": 21
+        },
+        {
+          "name": "SeekValidatesAndReturnsEvent",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_timeline.cpp",
+          "line": 32
+        },
+        {
+          "name": "SeekOnEmptyOrDetachedLogReturnsNoEvent",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_timeline.cpp",
+          "line": 44
+        }
+      ]
+    },
+    {
+      "name": "StateDiff",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "BuildAndDiff",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_state_diff.cpp",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "name": "PtraceTracer",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "TracesEcho",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_ptrace.cpp",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "name": "CheckpointRestore",
+      "tests": 2,
+      "testsuite": [
+        {
+          "name": "RestoresCapturedBytesAndPermissions",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_checkpoint_restore.cpp",
+          "line": 6
+        },
+        {
+          "name": "RejectsInvalidCapturedRegion",
+          "file": "\/home\/cristopher\/chronos\/tests\/test_checkpoint_restore.cpp",
+          "line": 26
+        }
+      ]
+    }
+  ]
+}

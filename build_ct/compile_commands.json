@@ -1,0 +1,158 @@
+[
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/common/src/types.cpp.o -c /home/cristopher/chronos/core/common/src/types.cpp",
+  "file": "/home/cristopher/chronos/core/common/src/types.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/common/src/types.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/common/src/error.cpp.o -c /home/cristopher/chronos/core/common/src/error.cpp",
+  "file": "/home/cristopher/chronos/core/common/src/error.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/common/src/error.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/events/src/event.cpp.o -c /home/cristopher/chronos/core/events/src/event.cpp",
+  "file": "/home/cristopher/chronos/core/events/src/event.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/events/src/event.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/events/src/event_log.cpp.o -c /home/cristopher/chronos/core/events/src/event_log.cpp",
+  "file": "/home/cristopher/chronos/core/events/src/event_log.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/events/src/event_log.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/storage/src/format.cpp.o -c /home/cristopher/chronos/core/storage/src/format.cpp",
+  "file": "/home/cristopher/chronos/core/storage/src/format.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/storage/src/format.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/storage/src/writer.cpp.o -c /home/cristopher/chronos/core/storage/src/writer.cpp",
+  "file": "/home/cristopher/chronos/core/storage/src/writer.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/storage/src/writer.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/storage/src/reader.cpp.o -c /home/cristopher/chronos/core/storage/src/reader.cpp",
+  "file": "/home/cristopher/chronos/core/storage/src/reader.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/storage/src/reader.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/recording/src/session.cpp.o -c /home/cristopher/chronos/core/recording/src/session.cpp",
+  "file": "/home/cristopher/chronos/core/recording/src/session.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/recording/src/session.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/recording/src/recording_engine.cpp.o -c /home/cristopher/chronos/core/recording/src/recording_engine.cpp",
+  "file": "/home/cristopher/chronos/core/recording/src/recording_engine.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/recording/src/recording_engine.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/execution/src/session_manager.cpp.o -c /home/cristopher/chronos/core/execution/src/session_manager.cpp",
+  "file": "/home/cristopher/chronos/core/execution/src/session_manager.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/execution/src/session_manager.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/memory/src/region.cpp.o -c /home/cristopher/chronos/core/memory/src/region.cpp",
+  "file": "/home/cristopher/chronos/core/memory/src/region.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/memory/src/region.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/memory/src/checkpoint_restore.cpp.o -c /home/cristopher/chronos/core/memory/src/checkpoint_restore.cpp",
+  "file": "/home/cristopher/chronos/core/memory/src/checkpoint_restore.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/memory/src/checkpoint_restore.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/memory/src/proc_maps.cpp.o -c /home/cristopher/chronos/core/memory/src/proc_maps.cpp",
+  "file": "/home/cristopher/chronos/core/memory/src/proc_maps.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/memory/src/proc_maps.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/memory/src/strings.cpp.o -c /home/cristopher/chronos/core/memory/src/strings.cpp",
+  "file": "/home/cristopher/chronos/core/memory/src/strings.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/memory/src/strings.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/timeline/src/timeline.cpp.o -c /home/cristopher/chronos/core/timeline/src/timeline.cpp",
+  "file": "/home/cristopher/chronos/core/timeline/src/timeline.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/timeline/src/timeline.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/analysis/src/state_diff.cpp.o -c /home/cristopher/chronos/core/analysis/src/state_diff.cpp",
+  "file": "/home/cristopher/chronos/core/analysis/src/state_diff.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/analysis/src/state_diff.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/core",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_core.dir/analysis/src/metrics.cpp.o -c /home/cristopher/chronos/core/analysis/src/metrics.cpp",
+  "file": "/home/cristopher/chronos/core/analysis/src/metrics.cpp",
+  "output": "core/CMakeFiles/chronos_core.dir/analysis/src/metrics.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/instrumentation",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/instrumentation/include -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_instrumentation.dir/src/ptrace_tracer.cpp.o -c /home/cristopher/chronos/instrumentation/src/ptrace_tracer.cpp",
+  "file": "/home/cristopher/chronos/instrumentation/src/ptrace_tracer.cpp",
+  "output": "instrumentation/CMakeFiles/chronos_instrumentation.dir/src/ptrace_tracer.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/tools",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/instrumentation/include -I/home/cristopher/chronos/third_party -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_cli.dir/main.cpp.o -c /home/cristopher/chronos/tools/main.cpp",
+  "file": "/home/cristopher/chronos/tools/main.cpp",
+  "output": "tools/CMakeFiles/chronos_cli.dir/main.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I/home/cristopher/chronos/instrumentation/include -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_tests.dir/test_events.cpp.o -c /home/cristopher/chronos/tests/test_events.cpp",
+  "file": "/home/cristopher/chronos/tests/test_events.cpp",
+  "output": "tests/CMakeFiles/chronos_tests.dir/test_events.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I/home/cristopher/chronos/instrumentation/include -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_tests.dir/test_storage.cpp.o -c /home/cristopher/chronos/tests/test_storage.cpp",
+  "file": "/home/cristopher/chronos/tests/test_storage.cpp",
+  "output": "tests/CMakeFiles/chronos_tests.dir/test_storage.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I/home/cristopher/chronos/instrumentation/include -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_tests.dir/test_timeline.cpp.o -c /home/cristopher/chronos/tests/test_timeline.cpp",
+  "file": "/home/cristopher/chronos/tests/test_timeline.cpp",
+  "output": "tests/CMakeFiles/chronos_tests.dir/test_timeline.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I/home/cristopher/chronos/instrumentation/include -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_tests.dir/test_state_diff.cpp.o -c /home/cristopher/chronos/tests/test_state_diff.cpp",
+  "file": "/home/cristopher/chronos/tests/test_state_diff.cpp",
+  "output": "tests/CMakeFiles/chronos_tests.dir/test_state_diff.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I/home/cristopher/chronos/instrumentation/include -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_tests.dir/test_ptrace.cpp.o -c /home/cristopher/chronos/tests/test_ptrace.cpp",
+  "file": "/home/cristopher/chronos/tests/test_ptrace.cpp",
+  "output": "tests/CMakeFiles/chronos_tests.dir/test_ptrace.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/tests",
+  "command": "/usr/bin/c++ -DGTEST_LINKED_AS_SHARED_LIBRARY=1 -I/home/cristopher/chronos/instrumentation/include -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_tests.dir/test_checkpoint_restore.cpp.o -c /home/cristopher/chronos/tests/test_checkpoint_restore.cpp",
+  "file": "/home/cristopher/chronos/tests/test_checkpoint_restore.cpp",
+  "output": "tests/CMakeFiles/chronos_tests.dir/test_checkpoint_restore.cpp.o"
+},
+{
+  "directory": "/home/cristopher/chronos/build_ct/benchmarks",
+  "command": "/usr/bin/c++  -I/home/cristopher/chronos/core/include -std=c++20 -Wall -Wextra -Wpedantic -Werror=return-type -o CMakeFiles/chronos_bench.dir/bench_storage.cpp.o -c /home/cristopher/chronos/benchmarks/bench_storage.cpp",
+  "file": "/home/cristopher/chronos/benchmarks/bench_storage.cpp",
+  "output": "benchmarks/CMakeFiles/chronos_bench.dir/bench_storage.cpp.o"
+}
+]

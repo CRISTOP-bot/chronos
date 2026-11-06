@@ -1,0 +1,5 @@
+if(EXISTS "/home/cristopher/chronos/build_ct/tests/chronos_tests_e3b0c442_tests.cmake")
+  include("/home/cristopher/chronos/build_ct/tests/chronos_tests_e3b0c442_tests.cmake")
+else()
+  add_test(chronos_tests_NOT_BUILT chronos_tests_NOT_BUILT)
+endif()

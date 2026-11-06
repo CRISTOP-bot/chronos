@@ -1,0 +1,355 @@
+Start testing: Nov 05 21:15 EST
+----------------------------------------------------------
+1/13 Testing: EventLog.AppendAndRetrieve
+1/13 Test: EventLog.AppendAndRetrieve
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=EventLog.AppendAndRetrieve" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"EventLog.AppendAndRetrieve" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = EventLog.AppendAndRetrieve
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from EventLog
+[ RUN      ] EventLog.AppendAndRetrieve
+[       OK ] EventLog.AppendAndRetrieve (1 ms)
+[----------] 1 test from EventLog (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"EventLog.AppendAndRetrieve" end time: Nov 05 21:15 EST
+"EventLog.AppendAndRetrieve" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/13 Testing: EventLog.Range
+2/13 Test: EventLog.Range
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=EventLog.Range" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"EventLog.Range" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = EventLog.Range
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from EventLog
+[ RUN      ] EventLog.Range
+[       OK ] EventLog.Range (1 ms)
+[----------] 1 test from EventLog (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"EventLog.Range" end time: Nov 05 21:15 EST
+"EventLog.Range" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/13 Testing: EventLog.Clear
+3/13 Test: EventLog.Clear
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=EventLog.Clear" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"EventLog.Clear" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = EventLog.Clear
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from EventLog
+[ RUN      ] EventLog.Clear
+[       OK ] EventLog.Clear (0 ms)
+[----------] 1 test from EventLog (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"EventLog.Clear" end time: Nov 05 21:15 EST
+"EventLog.Clear" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/13 Testing: EventLog.TypeIndexTracksAppendAndClear
+4/13 Test: EventLog.TypeIndexTracksAppendAndClear
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=EventLog.TypeIndexTracksAppendAndClear" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"EventLog.TypeIndexTracksAppendAndClear" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = EventLog.TypeIndexTracksAppendAndClear
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from EventLog
+[ RUN      ] EventLog.TypeIndexTracksAppendAndClear
+[       OK ] EventLog.TypeIndexTracksAppendAndClear (1 ms)
+[----------] 1 test from EventLog (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"EventLog.TypeIndexTracksAppendAndClear" end time: Nov 05 21:15 EST
+"EventLog.TypeIndexTracksAppendAndClear" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/13 Testing: Storage.RoundTrip
+5/13 Test: Storage.RoundTrip
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=Storage.RoundTrip" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"Storage.RoundTrip" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = Storage.RoundTrip
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Storage
+[ RUN      ] Storage.RoundTrip
+[       OK ] Storage.RoundTrip (3 ms)
+[----------] 1 test from Storage (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"Storage.RoundTrip" end time: Nov 05 21:15 EST
+"Storage.RoundTrip" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/13 Testing: Timeline.Navigation
+6/13 Test: Timeline.Navigation
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=Timeline.Navigation" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"Timeline.Navigation" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = Timeline.Navigation
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Timeline
+[ RUN      ] Timeline.Navigation
+[       OK ] Timeline.Navigation (1 ms)
+[----------] 1 test from Timeline (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"Timeline.Navigation" end time: Nov 05 21:15 EST
+"Timeline.Navigation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/13 Testing: Timeline.CheckpointAndFind
+7/13 Test: Timeline.CheckpointAndFind
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=Timeline.CheckpointAndFind" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"Timeline.CheckpointAndFind" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = Timeline.CheckpointAndFind
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Timeline
+[ RUN      ] Timeline.CheckpointAndFind
+[       OK ] Timeline.CheckpointAndFind (0 ms)
+[----------] 1 test from Timeline (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"Timeline.CheckpointAndFind" end time: Nov 05 21:15 EST
+"Timeline.CheckpointAndFind" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/13 Testing: Timeline.SeekValidatesAndReturnsEvent
+8/13 Test: Timeline.SeekValidatesAndReturnsEvent
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=Timeline.SeekValidatesAndReturnsEvent" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"Timeline.SeekValidatesAndReturnsEvent" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = Timeline.SeekValidatesAndReturnsEvent
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Timeline
+[ RUN      ] Timeline.SeekValidatesAndReturnsEvent
+[       OK ] Timeline.SeekValidatesAndReturnsEvent (0 ms)
+[----------] 1 test from Timeline (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"Timeline.SeekValidatesAndReturnsEvent" end time: Nov 05 21:15 EST
+"Timeline.SeekValidatesAndReturnsEvent" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/13 Testing: Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent
+9/13 Test: Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Timeline
+[ RUN      ] Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent
+[       OK ] Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent (0 ms)
+[----------] 1 test from Timeline (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent" end time: Nov 05 21:15 EST
+"Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/13 Testing: StateDiff.BuildAndDiff
+10/13 Test: StateDiff.BuildAndDiff
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=StateDiff.BuildAndDiff" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"StateDiff.BuildAndDiff" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = StateDiff.BuildAndDiff
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from StateDiff
+[ RUN      ] StateDiff.BuildAndDiff
+[       OK ] StateDiff.BuildAndDiff (1 ms)
+[----------] 1 test from StateDiff (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"StateDiff.BuildAndDiff" end time: Nov 05 21:15 EST
+"StateDiff.BuildAndDiff" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/13 Testing: PtraceTracer.TracesEcho
+11/13 Test: PtraceTracer.TracesEcho
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=PtraceTracer.TracesEcho" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"PtraceTracer.TracesEcho" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = PtraceTracer.TracesEcho
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from PtraceTracer
+[ RUN      ] PtraceTracer.TracesEcho
+hi
+[       OK ] PtraceTracer.TracesEcho (127 ms)
+[----------] 1 test from PtraceTracer (127 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (128 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"PtraceTracer.TracesEcho" end time: Nov 05 21:15 EST
+"PtraceTracer.TracesEcho" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/13 Testing: CheckpointRestore.RestoresCapturedBytesAndPermissions
+12/13 Test: CheckpointRestore.RestoresCapturedBytesAndPermissions
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=CheckpointRestore.RestoresCapturedBytesAndPermissions" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"CheckpointRestore.RestoresCapturedBytesAndPermissions" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = CheckpointRestore.RestoresCapturedBytesAndPermissions
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from CheckpointRestore
+[ RUN      ] CheckpointRestore.RestoresCapturedBytesAndPermissions
+[       OK ] CheckpointRestore.RestoresCapturedBytesAndPermissions (0 ms)
+[----------] 1 test from CheckpointRestore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"CheckpointRestore.RestoresCapturedBytesAndPermissions" end time: Nov 05 21:15 EST
+"CheckpointRestore.RestoresCapturedBytesAndPermissions" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/13 Testing: CheckpointRestore.RejectsInvalidCapturedRegion
+13/13 Test: CheckpointRestore.RejectsInvalidCapturedRegion
+Command: "/home/cristopher/chronos/build_san/tests/chronos_tests" "--gtest_filter=CheckpointRestore.RejectsInvalidCapturedRegion" "--gtest_also_run_disabled_tests"
+Directory: /home/cristopher/chronos/build_san/tests
+"CheckpointRestore.RejectsInvalidCapturedRegion" start time: Nov 05 21:15 EST
+Output:
+----------------------------------------------------------
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = CheckpointRestore.RejectsInvalidCapturedRegion
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from CheckpointRestore
+[ RUN      ] CheckpointRestore.RejectsInvalidCapturedRegion
+[       OK ] CheckpointRestore.RejectsInvalidCapturedRegion (0 ms)
+[----------] 1 test from CheckpointRestore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"CheckpointRestore.RejectsInvalidCapturedRegion" end time: Nov 05 21:15 EST
+"CheckpointRestore.RejectsInvalidCapturedRegion" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Nov 05 21:15 EST

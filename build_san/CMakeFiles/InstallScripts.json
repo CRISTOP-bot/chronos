@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/cristopher/chronos/build_san/cmake_install.cmake",
+		"/home/cristopher/chronos/build_san/core/cmake_install.cmake",
+		"/home/cristopher/chronos/build_san/instrumentation/cmake_install.cmake",
+		"/home/cristopher/chronos/build_san/tools/cmake_install.cmake",
+		"/home/cristopher/chronos/build_san/tests/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

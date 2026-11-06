@@ -1,0 +1,14 @@
+EventLog.AppendAndRetrieve 1 0.0505311
+EventLog.Range 1 0.0465011
+EventLog.Clear 1 0.0438971
+EventLog.TypeIndexTracksAppendAndClear 1 0.0414963
+Storage.RoundTrip 1 0.0456791
+Timeline.Navigation 1 0.0438
+Timeline.CheckpointAndFind 1 0.0432106
+Timeline.SeekValidatesAndReturnsEvent 1 0.0408592
+Timeline.SeekOnEmptyOrDetachedLogReturnsNoEvent 1 0.0419265
+StateDiff.BuildAndDiff 1 0.0428263
+PtraceTracer.TracesEcho 1 0.191286
+CheckpointRestore.RestoresCapturedBytesAndPermissions 1 0.0398729
+CheckpointRestore.RejectsInvalidCapturedRegion 1 0.0396578
+---
