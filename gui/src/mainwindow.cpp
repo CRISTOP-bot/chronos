@@ -94,6 +94,23 @@ void MainWindow::buildUi() {
     auto* memTab = new QWidget(this);
     auto* memLayout = new QVBoxLayout(memTab);
     memLayout->setContentsMargins(8,8,8,8);
+    checkpointCombo_ = new QComboBox(this);
+    checkpointCombo_->setPlaceholderText("Select checkpoint");
+    connect(checkpointCombo_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int idx){
+        if (idx < 0 || idx >= (int)recording_.checkpoints.size()) return;
+        const auto& cp = recording_.checkpoints[idx];
+        memoryTree_->clear();
+        for (auto& r : cp.regions) {
+            auto* item = new QTreeWidgetItem(memoryTree_);
+            item->setText(0, QString("0x%1").arg(r.base, 0, 16));
+            item->setText(1, QString::number(r.size));
+            item->setText(2, QString("%1%2%3").arg(r.readable?"r":"-").arg(r.writable?"w":"-").arg(r.executable?"x":"-"));
+            item->setText(3, QString::fromStdString(r.name));
+            QByteArray ba(reinterpret_cast<const char*>(r.bytes.data()), (int)r.bytes.size());
+            item->setData(0, Qt::UserRole, ba);
+        }
+    });
+    memLayout->addWidget(checkpointCombo_);
     memoryTree_ = new QTreeWidget(this);
     memoryTree_->setHeaderLabels({"Base", "Size", "Perms", "Name"});
     memoryTree_->header()->setStretchLastSection(true);
@@ -232,6 +249,11 @@ void MainWindow::loadRecording(const QString& path) {
     diffBButton_->setText("Set B");
     timeline_.set_log(&eventLog_);
     populateEvents();
+    if (checkpointCombo_) {
+        checkpointCombo_->clear();
+        for (auto& cp : recording_.checkpoints) checkpointCombo_->addItem(QString("Checkpoint %1 (t=%2)").arg(cp.id).arg(cp.time_sequence));
+        if (!recording_.checkpoints.empty()) checkpointCombo_->setCurrentIndex(0);
+    }
     if (welcomeLabel_) welcomeLabel_->hide();
     if (mainSplitter_) mainSplitter_->setVisible(true);
     timelineSlider_->setRange(0, (int)recording_.events.size());

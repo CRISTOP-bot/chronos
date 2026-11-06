@@ -2,6 +2,7 @@
 #include <QMainWindow>
 #include <QString>
 #include <QSplitter>
+#include <QComboBox>
 #include "chronos/storage/writer.h"
 #include "chronos/events/event_log.h"
 #include "chronos/timeline/timeline.h"
@@ -47,6 +48,7 @@ private:
     QLabel* statusLabel_ = nullptr;
     QLabel* eventDetail_ = nullptr;
     QTreeWidget* memoryTree_ = nullptr;
+    QComboBox* checkpointCombo_ = nullptr;
     QTreeWidget* callStackTree_ = nullptr;
     QTreeWidget* execGraphTree_ = nullptr;
     QPlainTextEdit* diffEdit_ = nullptr;
