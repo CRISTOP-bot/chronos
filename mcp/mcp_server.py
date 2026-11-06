@@ -88,6 +88,19 @@ TOOLS = [
             "required": ["recording", "output"],
         },
     },
+    {
+        "name": "chronos_strings",
+        "description": "Extract readable strings from a checkpoint.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "recording": {"type": "string"},
+                "checkpoint": {"type": "integer"},
+                "filter": {"type": "string"},
+            },
+            "required": ["recording", "checkpoint"],
+        },
+    },
 ]
 
 
@@ -135,6 +148,11 @@ def handle(msg):
             text = run_cli(["memdiff", args["recording"], str(args["a"]), str(args["b"])])
         elif name == "chronos_export_html":
             text = run_cli(["export-html", args["recording"], args["output"]])
+        elif name == "chronos_strings":
+            cmd = ["strings", args["recording"], str(args["checkpoint"])]
+            if args.get("filter"):
+                cmd.append(args["filter"])
+            text = run_cli(cmd)
         else:
             text = f"Unknown tool: {name}"
         return {
