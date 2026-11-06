@@ -240,6 +240,59 @@ int main(int argc, char** argv) {
         std::cout << "Exported HTML report to " << argv[3] << "\n";
         return 0;
     }
+    if (cmd == "export-json") {
+        if (argc < 4) { std::cerr << "Usage: chronos_cli export-json <recording> <output.json>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        auto esc = [](const std::string& s) {
+            std::string o;
+            for (char c : s) {
+                switch (c) {
+                    case '\"': o += "\\\""; break;
+                    case '\\': o += "\\\\"; break;
+                    case '\n': o += "\\n"; break;
+                    case '\r': o += "\\r"; break;
+                    case '\t': o += "\\t"; break;
+                    default: o += c; break;
+                }
+            }
+            return o;
+        };
+        std::ofstream out(argv[3]);
+        out << "{\n";
+        out << "  \"metadata\": {\"name\": \"" << esc(rec.metadata.name) << "\", \"target\": \"" << esc(rec.metadata.target_path)
+            << "\", \"events\": " << rec.events.size() << ", \"checkpoints\": " << rec.checkpoints.size() << "},\n";
+        out << "  \"events\": [\n";
+        for (size_t i=0;i<rec.events.size();++i) {
+            const auto& e = rec.events[i];
+            out << "    {\"index\": " << (i+1) << ", \"type\": \"" << esc(event_type_name(e.type)) << "\", \"pid\": " << e.pid
+                << ", \"tid\": " << e.tid << ", \"sequence\": " << e.time.sequence;
+            if (e.type == EventType::SyscallEnter || e.type == EventType::SyscallExit) {
+                auto s = std::get<SyscallEvent>(e.payload);
+                out << ", \"syscall\": \"" << esc(s.name) << "\", \"result\": \"" << esc(s.result) << "\"";
+            } else if (e.type == EventType::VariableChange) {
+                auto v = std::get<VariableEvent>(e.payload);
+                out << ", \"variable\": \"" << esc(v.name) << "\", \"value\": \"" << esc(v.new_value) << "\"";
+            }
+            out << "}";
+            if (i+1 < rec.events.size()) out << ",";
+            out << "\n";
+        }
+        out << "  ],\n";
+        out << "  \"checkpoints\": [\n";
+        for (size_t i=0;i<rec.checkpoints.size();++i) {
+            const auto& cp = rec.checkpoints[i];
+            out << "    {\"id\": " << cp.id << ", \"time\": " << cp.time_sequence << ", \"label\": \"" << esc(cp.label)
+                << "\", \"regions\": " << cp.regions.size() << "}";
+            if (i+1 < rec.checkpoints.size()) out << ",";
+            out << "\n";
+        }
+        out << "  ]\n}\n";
+        out.close();
+        std::cout << "Exported JSON to " << argv[3] << "\n";
+        return 0;
+    }
     std::cerr << "Unknown command: " << cmd << "\n";
     return 1;
 }
