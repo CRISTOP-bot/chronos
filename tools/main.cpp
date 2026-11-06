@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include <fstream>
 
 int main(int argc, char** argv) {
     using namespace chronos;
@@ -195,6 +196,48 @@ int main(int argc, char** argv) {
         for (auto& kv : snap.variables) {
             std::cout << "  " << kv.first << " (" << kv.second.type_name << ") = " << kv.second.value << "\n";
         }
+        return 0;
+    }
+    if (cmd == "export-html") {
+        if (argc < 4) { std::cerr << "Usage: chronos_cli export-html <recording> <output.html>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        std::ofstream out(argv[3]);
+        out << "<!DOCTYPE html><html><head><meta charset='utf-8'><title>CHRONOS Report</title>\n";
+        out << "<style>body{background:#0e1116;color:#dce0e8;font-family:monospace;margin:24px;}\n";
+        out << "h1{color:#4682b4;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #2a2e36;padding:6px;} th{background:#1e2228;}\n";
+        out << ".cp{margin:8px 0;padding:8px;border:1px solid #2a2e36;background:#181a1e;}</style></head><body>\n";
+        out << "<h1>CHRONOS Recording Report</h1>\n";
+        out << "<p><b>Name:</b> " << rec.metadata.name << " | <b>Events:</b> " << rec.events.size()
+            << " | <b>Checkpoints:</b> " << rec.checkpoints.size() << " | <b>Target:</b> " << rec.metadata.target_path << "</p>\n";
+        out << "<h2>Checkpoints</h2>\n";
+        for (auto& cp : rec.checkpoints) {
+            out << "<div class='cp'>Checkpoint " << cp.id << " @ event " << cp.time_sequence
+                << " — " << cp.label << " (" << cp.regions.size() << " regions)</div>\n";
+        }
+        out << "<h2>Event Log</h2>\n";
+        out << "<table><tr><th>#</th><th>Type</th><th>PID/TID</th><th>Detail</th></tr>\n";
+        for (size_t i=0;i<rec.events.size();++i) {
+            const auto& e = rec.events[i];
+            std::string detail;
+            if (e.type == EventType::SyscallEnter || e.type == EventType::SyscallExit) {
+                auto s = std::get<SyscallEvent>(e.payload);
+                detail = s.name + " " + s.result;
+            } else if (e.type == EventType::VariableChange) {
+                auto v = std::get<VariableEvent>(e.payload);
+                detail = v.name + " = " + v.new_value;
+            } else if (e.type == EventType::Checkpoint) {
+                detail = std::get<CheckpointEvent>(e.payload).label;
+            } else if (e.type == EventType::FunctionEnter || e.type == EventType::FunctionExit) {
+                detail = std::get<FunctionEvent>(e.payload).name;
+            }
+            out << "<tr><td>" << (i+1) << "</td><td>" << event_type_name(e.type) << "</td><td>"
+                << e.pid << "/" << e.tid << "</td><td>" << detail << "</td></tr>\n";
+        }
+        out << "</table></body></html>\n";
+        out.close();
+        std::cout << "Exported HTML report to " << argv[3] << "\n";
         return 0;
     }
     std::cerr << "Unknown command: " << cmd << "\n";
