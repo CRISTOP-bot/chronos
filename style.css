@@ -628,3 +628,103 @@ pre { font-family: var(--font-mono); }
   .btn { width: 100%; justify-content: center; }
   .cli-table th:last-child, .cli-table td:last-child { display: none; }
 }
+
+/* ── Copy button on code blocks ─────────────────────────────────────────── */
+.copy-btn {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--bg4);
+  color: var(--text3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition);
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--text); }
+
+/* ── Smooth scroll offset for fixed nav ────────────────────────────────── */
+:target { scroll-margin-top: calc(var(--nav-h) + 16px); }
+
+/* ── Feature card focus outline for accessibility ──────────────────────── */
+a:focus-visible {
+  outline: 2px solid var(--accent2);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Terminal scrollbar ─────────────────────────────────────────────────── */
+.terminal-body {
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.terminal-body::-webkit-scrollbar { width: 6px; }
+.terminal-body::-webkit-scrollbar-track { background: transparent; }
+.terminal-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Architecture diagram ────────────────────────────────────────────────── */
+.arch-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 860px;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+}
+.arch-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 0;
+}
+.arch-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  text-align: center;
+  color: var(--text2);
+  flex: 1;
+  min-width: 80px;
+  max-width: 200px;
+  transition: border-color var(--transition), color var(--transition);
+}
+.arch-box:hover { border-color: var(--accent); color: var(--text); }
+.arch-box.highlight { border-color: var(--accent); color: var(--accent2); background: rgba(70,130,180,0.07); }
+.arch-box small { display: block; color: var(--text3); font-size: 0.73rem; margin-top: 2px; }
+.arch-arrow {
+  display: flex;
+  justify-content: center;
+  color: var(--text3);
+  font-size: 1.1rem;
+  padding: 4px 0;
+  user-select: none;
+}
+.arch-sep {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
+  position: relative;
+}
+.arch-label {
+  position: absolute;
+  top: -9px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg2);
+  padding: 0 10px;
+  color: var(--text3);
+  font-size: 0.73rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
