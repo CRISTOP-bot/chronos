@@ -8,6 +8,7 @@ EventId EventLog::append(Event e) {
     else if (e.id >= next_id_) next_id_ = e.id + 1;
     if (e.time.sequence == 0) e.time.sequence = events_.size() + 1;
     events_.push_back(std::move(e));
+    type_indices_[events_.back().type].push_back(events_.size() - 1);
     return events_.back().id;
 }
 
@@ -36,9 +37,9 @@ size_t EventLog::index_of(EventId id) const {
 
 std::vector<size_t> EventLog::indices_of_type(EventType type) const {
     std::lock_guard<std::mutex> lk(mtx_);
-    std::vector<size_t> out;
-    for (size_t i = 0; i < events_.size(); ++i) if (events_[i].type == type) out.push_back(i);
-    return out;
+    auto it = type_indices_.find(type);
+    if (it == type_indices_.end()) return {};
+    return it->second;
 }
 
 std::vector<Event> EventLog::range(size_t from, size_t to) const {
@@ -52,6 +53,7 @@ std::vector<Event> EventLog::range(size_t from, size_t to) const {
 void EventLog::clear() {
     std::lock_guard<std::mutex> lk(mtx_);
     events_.clear();
+    type_indices_.clear();
 }
 
 std::vector<Event> EventLog::snapshot() const {
