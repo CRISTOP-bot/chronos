@@ -9,7 +9,7 @@
 
 **Temporal Execution & Reconstruction Engine** — a real reverse-debugging and time-travel analysis tool for programs.
 
-🌐 **Languages:** [English](docs/README/README.en.md) · [Español](docs/README/README.es.md) · [Français](docs/README/README.fr.md) · [Deutsch](docs/README/README.de.md) · [中文](docs/README/README.zh.md)
+🌐 **Languages:** 🇬🇧 [English](docs/README/README.en.md) · 🇪🇸 [Español](docs/README/README.es.md) · 🇫🇷 [Français](docs/README/README.fr.md) · 🇩🇪 [Deutsch](docs/README/README.de.md) · 🇨🇳 [中文](docs/README/README.zh.md)
 
 CHRONOS records, reconstructs and explores program executions over time. It is not a debugger clone: it is an engineering tool to understand what happened inside a program and recover previous states.
 
