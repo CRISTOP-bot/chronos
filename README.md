@@ -107,7 +107,9 @@ CHRONOS ships a minimal MCP server so AI assistants can use it as a tool.
 ./mcp.sh /path/to/chronos_cli
 ```
 
-Exposed tools: `chronos_info`, `chronos_trace`, `chronos_search`, `chronos_state`, `chronos_checkpoints`, `chronos_memdiff`, `chronos_export_html`.
+Exposed tools: `chronos_info`, `chronos_trace`, `chronos_search`, `chronos_state`, `chronos_checkpoints`, `chronos_memdiff`, `chronos_export_html`, `chronos_strings`.
+
+Full review: `docs/MCP_REVIEW.md`. Tested with OpenCode.
 
 ## Contributing
 
