@@ -30,6 +30,10 @@
 #include <QVBoxLayout>
 #include <QStackedWidget>
 #include <QTabWidget>
+#include <QDockWidget>
+#include <QToolBar>
+#include <QTreeWidget>
+#include <QHeaderView>
 
 using namespace chronos;
 using namespace chronos::gui;
@@ -42,61 +46,87 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 }
 
 void MainWindow::buildUi() {
+    setWindowTitle("CHRONOS");
+    resize(1600, 1000);
+    setDockNestingEnabled(true);
+
+    // Menu bar
     auto* menuBar = new QMenuBar(this);
     auto* fileMenu = menuBar->addMenu("File");
-    auto* viewMenu = menuBar->addMenu("View");
-    auto* graphAct = viewMenu->addAction("Execution Graph...");
-    connect(graphAct, &QAction::triggered, this, &MainWindow::showExecGraph);
     auto* openAct = fileMenu->addAction("Open Recording...");
     connect(openAct, &QAction::triggered, this, &MainWindow::openRecording);
     fileMenu->addSeparator();
     auto* quitAct = fileMenu->addAction("Quit");
     connect(quitAct, &QAction::triggered, qApp, &QApplication::quit);
+
+    auto* viewMenu = menuBar->addMenu("View");
+    auto* graphAct = viewMenu->addAction("Execution Graph...");
+    connect(graphAct, &QAction::triggered, this, &MainWindow::showExecGraph);
+
+    auto* navigateMenu = menuBar->addMenu("Navigate");
+    navigateMenu->addAction("Previous Event");
+    navigateMenu->addAction("Next Event");
+    navigateMenu->addAction("Previous Checkpoint");
+    navigateMenu->addAction("Next Checkpoint");
+
+    auto* analysisMenu = menuBar->addMenu("Analysis");
+    analysisMenu->addAction("State Diff");
+    analysisMenu->addAction("Search");
+
+    auto* windowsMenu = menuBar->addMenu("Windows");
+    auto* helpMenu = menuBar->addMenu("Help");
+    helpMenu->addAction("About CHRONOS");
     setMenuBar(menuBar);
 
-    auto* central = new QWidget(this);
-    auto* mainLayout = new QVBoxLayout(central);
-    mainLayout->setContentsMargins(8,8,8,8);
+    // Toolbar
+    auto* toolbar = new QToolBar("Main", this);
+    toolbar->setMovable(false);
+    toolbar->setIconSize(QSize(16,16));
+    auto* openBtn = toolbar->addAction("Open");
+    connect(openBtn, &QAction::triggered, this, &MainWindow::openRecording);
+    toolbar->addSeparator();
+    toolbar->addAction("◀ Prev");
+    toolbar->addAction("Next ▶");
+    toolbar->addSeparator();
+    toolbar->addAction("Search");
+    statusLabel_ = new QLabel("No recording loaded", this);
+    statusLabel_->setStyleSheet("color: #9aa0a6; margin-left: 12px;");
+    toolbar->addWidget(statusLabel_);
+    addToolBar(toolbar);
 
-    // Top: timeline slider
-    auto* topBar = new QHBoxLayout();
-    auto* tlLabel = new QLabel("Timeline:", this);
+    // Central workspace tabs
+    auto* centralTabs = new QTabWidget(this);
+    centralTabs->setTabPosition(QTabWidget::North);
+
+    // Timeline tab
+    auto* timelineTab = new QWidget(this);
+    auto* tlLayout = new QVBoxLayout(timelineTab);
     timelineSlider_ = new QSlider(Qt::Horizontal, this);
     timelineSlider_->setRange(0,0);
     connect(timelineSlider_, &QSlider::valueChanged, this, &MainWindow::onTimelineChanged);
-    statusLabel_ = new QLabel("No recording loaded", this);
-    topBar->addWidget(tlLabel);
-    topBar->addWidget(timelineSlider_, 1);
-    topBar->addWidget(statusLabel_);
-    mainLayout->addLayout(topBar);
+    tlLayout->addWidget(timelineSlider_);
+    auto* tlInfo = new QLabel("Timeline view (events, threads, checkpoints)", this);
+    tlInfo->setStyleSheet("color: #9aa0a6;");
+    tlLayout->addWidget(tlInfo);
+    centralTabs->addTab(timelineTab, "Timeline");
 
-    // Welcome page (simple)
-    welcomeLabel_ = new QLabel("Welcome to CHRONOS\\n\\nOpen a recording or trace a program to begin.", this);
-    welcomeLabel_->setAlignment(Qt::AlignCenter);
-    welcomeLabel_->setStyleSheet("font-size: 24px; color: #9aa0a6;");
-    mainLayout->addWidget(welcomeLabel_, 1);
-
-    // Splitter: left events, right panels
-    mainSplitter_ = new QSplitter(Qt::Horizontal, this);
-    mainSplitter_->setVisible(false);
-
-    // Event log table
+    // Event listing tab
+    auto* eventTab = new QWidget(this);
+    auto* evLayout = new QVBoxLayout(eventTab);
     eventTable_ = new QTableWidget(this);
     eventTable_->setColumnCount(4);
     eventTable_->setHorizontalHeaderLabels({"#", "Type", "PID/TID", "Detail"});
     eventTable_->horizontalHeader()->setStretchLastSection(true);
     eventTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    eventTable_->setAlternatingRowColors(true);
     connect(eventTable_, &QTableWidget::cellClicked, this, &MainWindow::onEventSelected);
-    mainSplitter_->addWidget(eventTable_);
+    evLayout->addWidget(eventTable_, 1);
+    centralTabs->addTab(eventTab, "Event Listing");
 
-    // Right: tab-like vertical stack
-    auto* rightTabs = new QTabWidget(this);
-    // Tab: Memory
+    // Memory tab
     auto* memTab = new QWidget(this);
     auto* memLayout = new QVBoxLayout(memTab);
-    memLayout->setContentsMargins(8,8,8,8);
     checkpointCombo_ = new QComboBox(this);
-    checkpointCombo_->setPlaceholderText("Select checkpoint");
     connect(checkpointCombo_, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int idx){
         if (idx < 0 || idx >= (int)recording_.checkpoints.size()) return;
         const auto& cp = recording_.checkpoints[idx];
@@ -110,19 +140,12 @@ void MainWindow::buildUi() {
             QByteArray ba(reinterpret_cast<const char*>(r.bytes.data()), (int)r.bytes.size());
             item->setData(0, Qt::UserRole, ba);
         }
-        // Extract strings from all regions
+        // strings
         std::vector<u8> allbytes;
-        for (auto& r : cp.regions) {
-            allbytes.insert(allbytes.end(), r.bytes.begin(), r.bytes.end());
-        }
+        for (auto& r : cp.regions) allbytes.insert(allbytes.end(), r.bytes.begin(), r.bytes.end());
         currentStrings_ = memory::extract_strings(allbytes);
-        // apply filter
-        QString filter = stringsFilter_ ? stringsFilter_->text() : QString();
         QString text;
-        for (auto& s : currentStrings_) {
-            if (!filter.isEmpty() && QString::fromStdString(s).indexOf(filter, 0, Qt::CaseInsensitive) < 0) continue;
-            text += QString::fromStdString(s) + "\\n";
-        }
+        for (auto& s : currentStrings_) text += QString::fromStdString(s) + "\n";
         if (stringsView_) stringsView_->setPlainText(text);
     });
     memLayout->addWidget(checkpointCombo_);
@@ -152,7 +175,7 @@ void MainWindow::buildUi() {
     hexView_ = new QPlainTextEdit(this);
     hexView_->setReadOnly(true);
     hexView_->setFont(QFont("Monospace", 9));
-    hexView_->setMaximumHeight(200);
+    hexView_->setMaximumHeight(180);
     memLayout->addWidget(hexView_);
     stringsFilter_ = new QLineEdit(this);
     stringsFilter_->setPlaceholderText("Filter strings...");
@@ -161,7 +184,7 @@ void MainWindow::buildUi() {
         QString text;
         for (auto& s : currentStrings_) {
             if (!txt.isEmpty() && QString::fromStdString(s).indexOf(txt, 0, Qt::CaseInsensitive) < 0) continue;
-            text += QString::fromStdString(s) + "\\n";
+            text += QString::fromStdString(s) + "\n";
         }
         stringsView_->setPlainText(text);
     });
@@ -171,26 +194,28 @@ void MainWindow::buildUi() {
     stringsView_->setFont(QFont("Monospace", 9));
     stringsView_->setMaximumHeight(160);
     memLayout->addWidget(stringsView_);
-    rightTabs->addTab(memTab, "Memory");
+    centralTabs->addTab(memTab, "Memory");
 
-    // Tab: Calls & Graph
-    auto* callTab = new QWidget(this);
-    auto* callLayout = new QVBoxLayout(callTab);
-    callLayout->setContentsMargins(8,8,8,8);
+    // Execution Graph tab
+    auto* graphTab = new QWidget(this);
+    auto* graphLayout = new QVBoxLayout(graphTab);
+    auto* graphBtn = new QPushButton("Open Graph Window", this);
+    connect(graphBtn, &QPushButton::clicked, this, &MainWindow::showExecGraph);
+    graphLayout->addWidget(graphBtn);
     callStackTree_ = new QTreeWidget(this);
     callStackTree_->setHeaderLabels({"Function", "Address"});
     callStackTree_->header()->setStretchLastSection(true);
-    callLayout->addWidget(callStackTree_, 1);
+    callStackTree_->setMaximumHeight(160);
+    graphLayout->addWidget(callStackTree_);
     execGraphTree_ = new QTreeWidget(this);
     execGraphTree_->setHeaderLabels({"Function", "Event #"});
     execGraphTree_->header()->setStretchLastSection(true);
-    callLayout->addWidget(execGraphTree_, 1);
-    rightTabs->addTab(callTab, "Calls");
+    graphLayout->addWidget(execGraphTree_, 1);
+    centralTabs->addTab(graphTab, "Execution Graph");
 
-    // Tab: State Diff
+    // State Diff tab
     auto* diffTab = new QWidget(this);
     auto* diffLayout = new QVBoxLayout(diffTab);
-    diffLayout->setContentsMargins(8,8,8,8);
     auto* diffBar = new QHBoxLayout();
     diffAButton_ = new QPushButton("Set A", this);
     diffBButton_ = new QPushButton("Set B", this);
@@ -205,26 +230,59 @@ void MainWindow::buildUi() {
     diffEdit_ = new QPlainTextEdit(this);
     diffEdit_->setReadOnly(true);
     diffLayout->addWidget(diffEdit_, 1);
-    rightTabs->addTab(diffTab, "Diff");
+    centralTabs->addTab(diffTab, "State Diff");
 
+    setCentralWidget(centralTabs);
+
+    // Left dock: Navigation
+    auto* navDock = new QDockWidget("Navigation", this);
+    navDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    auto* navTree = new QTreeWidget(this);
+    navTree->setHeaderLabel("Items");
+    auto* procItem = new QTreeWidgetItem(navTree, {"Processes"});
+    auto* threadItem = new QTreeWidgetItem(navTree, {"Threads"});
+    auto* eventItem = new QTreeWidgetItem(navTree, {"Events"});
+    auto* cpItem = new QTreeWidgetItem(navTree, {"Checkpoints"});
+    auto* memItem = new QTreeWidgetItem(navTree, {"Memory Regions"});
+    auto* branchItem = new QTreeWidgetItem(navTree, {"Branches"});
+    navDock->setWidget(navTree);
+    addDockWidget(Qt::LeftDockWidgetArea, navDock);
+
+    // Right dock: Inspector
+    auto* inspDock = new QDockWidget("Inspector", this);
+    inspDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     eventDetail_ = new QLabel("Select an event", this);
     eventDetail_->setWordWrap(true);
-    eventDetail_->setStyleSheet("background: #181a1e; padding: 8px; border: 1px solid #2a2e36; border-radius: 6px;");
-    eventDetail_->setMinimumHeight(60);
+    eventDetail_->setStyleSheet("background: #181a1e; padding: 8px; border: 1px solid #2a2e36;");
+    inspDock->setWidget(eventDetail_);
+    addDockWidget(Qt::RightDockWidgetArea, inspDock);
 
-    auto* right = new QWidget(this);
-    auto* rightLayout = new QVBoxLayout(right);
-    rightLayout->setContentsMargins(0,0,0,0);
-    rightLayout->addWidget(eventDetail_);
-    rightLayout->addWidget(rightTabs, 1);
-    mainSplitter_->addWidget(right);
-    mainSplitter_->setSizes({600, 600});
-    mainLayout->addWidget(mainSplitter_, 1);
+    // Bottom dock: Output tabs
+    auto* outDock = new QDockWidget("Output", this);
+    auto* outTabs = new QTabWidget(this);
+    auto* eventLogTab = new QWidget(this);
+    auto* el = new QVBoxLayout(eventLogTab);
+    eventTable_ = new QTableWidget(this); // reuse? keep separate not needed; reuse not possible
+    // Instead put a plain text log
+    auto* logEdit = new QPlainTextEdit(this);
+    logEdit->setReadOnly(true);
+    el->addWidget(logEdit);
+    outTabs->addTab(eventLogTab, "Event Log");
+    auto* searchTab = new QWidget(this);
+    outTabs->addTab(searchTab, "Search");
+    auto* analysisTab = new QWidget(this);
+    outTabs->addTab(analysisTab, "Analysis");
+    auto* diagTab = new QWidget(this);
+    outTabs->addTab(diagTab, "Diagnostics");
+    outDock->setWidget(outTabs);
+    addDockWidget(Qt::BottomDockWidgetArea, outDock);
 
-    setCentralWidget(central);
+    // Status bar
     statusBar()->showMessage("Ready");
-}
 
+    // Event table connections
+    connect(eventTable_, &QTableWidget::cellClicked, this, &MainWindow::onEventSelected);
+}
 void MainWindow::applyDarkTheme() {
     qApp->setStyle("Fusion");
     QPalette p;
