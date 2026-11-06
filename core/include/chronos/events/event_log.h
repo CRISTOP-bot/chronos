@@ -25,11 +25,11 @@ public:
     // Find index of event with given id, or npos.
     size_t index_of(EventId id) const;
 
+    // Indices of events of a given type (in chronological order).
+    std::vector<size_t> indices_of_type(EventType type) const;
+
     // Range [from, to) by sequence index.
     std::vector<Event> range(size_t from, size_t to) const;
-
-    // Indices into the chronological event vector, maintained during append.
-    std::vector<size_t> indices_of_type(EventType type) const;
 
     // Clear all.
     void clear();

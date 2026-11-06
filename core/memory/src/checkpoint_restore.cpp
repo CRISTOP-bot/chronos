@@ -1,28 +1,30 @@
 #include "chronos/memory/checkpoint_restore.h"
-#include <limits>
+#include <stdexcept>
 
-namespace chronos::memory {
+namespace chronos {
+namespace memory {
 
 Result<MemoryMap> CheckpointRestorer::restore(const storage::CheckpointRecord& checkpoint) {
-    MemoryMap restored;
-    for (const auto& captured : checkpoint.regions) {
-        if (captured.bytes.size() > captured.size) {
-            return Error::make(ErrorCode::CorruptData, "checkpoint bytes exceed declared region size", captured.name);
+    MemoryMap mm;
+    for (const auto& r : checkpoint.regions) {
+        if (r.bytes.size() > r.size) {
+            return Result<MemoryMap>(Error::make(ErrorCode::InvalidArgument, "captured bytes exceed region size"));
         }
-        if (captured.size > std::numeric_limits<Address>::max() - captured.base) {
-            return Error::make(ErrorCode::CorruptData, "checkpoint region address overflows", captured.name);
+        if (r.base > UINT64_MAX - r.size) { // overflow
+            // if size 0, base+0 okay; but size>0 overflow
+            if (r.size != 0) return Result<MemoryMap>(Error::make(ErrorCode::OutOfBounds, "region overflow"));
         }
-        MemoryRegion region;
-        region.base = captured.base;
-        region.size = captured.size;
-        region.name = captured.name;
-        region.data = captured.bytes;
-        region.readable = captured.readable != 0;
-        region.writable = captured.writable != 0;
-        region.executable = captured.executable != 0;
-        restored.add_region(region);
+        MemoryRegion reg;
+        reg.base = r.base;
+        reg.size = r.size;
+        reg.name = r.name;
+        reg.readable = r.readable != 0;
+        reg.writable = r.writable != 0;
+        reg.executable = r.executable != 0;
+        reg.data = r.bytes;
+        mm.add_region(reg);
     }
-    return restored;
+    return Result<MemoryMap>(mm);
 }
 
-} // namespace chronos::memory
+} }

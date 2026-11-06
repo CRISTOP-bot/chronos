@@ -1,15 +1,15 @@
 #pragma once
-
-#include "chronos/common/result.h"
 #include "chronos/memory/region.h"
 #include "chronos/storage/format.h"
+#include "chronos/common/result.h"
 
-namespace chronos::memory {
+namespace chronos {
+namespace memory {
 
-// Recreates the captured bytes in an in-memory map. This never writes to a process.
 class CheckpointRestorer {
 public:
     static Result<MemoryMap> restore(const storage::CheckpointRecord& checkpoint);
 };
 
-} // namespace chronos::memory
+} // namespace memory
+} // namespace chronos

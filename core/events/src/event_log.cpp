@@ -34,6 +34,13 @@ size_t EventLog::index_of(EventId id) const {
     return events_.size(); // npos-ish
 }
 
+std::vector<size_t> EventLog::indices_of_type(EventType type) const {
+    std::lock_guard<std::mutex> lk(mtx_);
+    std::vector<size_t> out;
+    for (size_t i = 0; i < events_.size(); ++i) if (events_[i].type == type) out.push_back(i);
+    return out;
+}
+
 std::vector<Event> EventLog::range(size_t from, size_t to) const {
     std::lock_guard<std::mutex> lk(mtx_);
     if (from > events_.size()) from = events_.size();
