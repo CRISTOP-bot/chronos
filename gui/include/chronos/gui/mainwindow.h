@@ -4,6 +4,7 @@
 #include <QSplitter>
 #include <QComboBox>
 #include <QLineEdit>
+#include <QListWidget>
 #include <vector>
 #include "chronos/storage/writer.h"
 #include "chronos/events/event_log.h"
@@ -33,6 +34,11 @@ private slots:
     void setDiffA();
     void setDiffB();
     void showExecGraph();
+    void prevEvent();
+    void nextEvent();
+    void prevCheckpoint();
+    void nextCheckpoint();
+    void doSearch();
 
 private:
     void buildUi();
@@ -54,6 +60,8 @@ private:
     QTreeWidget* callStackTree_ = nullptr;
     QTreeWidget* execGraphTree_ = nullptr;
     QPlainTextEdit* diffEdit_ = nullptr;
+    QLineEdit* searchEdit_ = nullptr;
+    QListWidget* searchResults_ = nullptr;
     QPlainTextEdit* hexView_ = nullptr;
     QLineEdit* stringsFilter_ = nullptr;
     QPlainTextEdit* stringsView_ = nullptr;

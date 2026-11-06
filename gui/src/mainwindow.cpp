@@ -64,14 +64,20 @@ void MainWindow::buildUi() {
     connect(graphAct, &QAction::triggered, this, &MainWindow::showExecGraph);
 
     auto* navigateMenu = menuBar->addMenu("Navigate");
-    navigateMenu->addAction("Previous Event");
-    navigateMenu->addAction("Next Event");
-    navigateMenu->addAction("Previous Checkpoint");
-    navigateMenu->addAction("Next Checkpoint");
+    auto* peAct = navigateMenu->addAction("Previous Event");
+    connect(peAct, &QAction::triggered, this, &MainWindow::prevEvent);
+    auto* neAct = navigateMenu->addAction("Next Event");
+    connect(neAct, &QAction::triggered, this, &MainWindow::nextEvent);
+    auto* pcAct = navigateMenu->addAction("Previous Checkpoint");
+    connect(pcAct, &QAction::triggered, this, &MainWindow::prevCheckpoint);
+    auto* ncAct = navigateMenu->addAction("Next Checkpoint");
+    connect(ncAct, &QAction::triggered, this, &MainWindow::nextCheckpoint);
 
     auto* analysisMenu = menuBar->addMenu("Analysis");
-    analysisMenu->addAction("State Diff");
-    analysisMenu->addAction("Search");
+    auto* sdAct = analysisMenu->addAction("State Diff");
+    connect(sdAct, &QAction::triggered, this, &MainWindow::runStateDiff);
+    auto* srAct = analysisMenu->addAction("Search");
+    connect(srAct, &QAction::triggered, this, &MainWindow::doSearch);
 
     auto* windowsMenu = menuBar->addMenu("Windows");
     auto* helpMenu = menuBar->addMenu("Help");
@@ -85,10 +91,13 @@ void MainWindow::buildUi() {
     auto* openBtn = toolbar->addAction("Open");
     connect(openBtn, &QAction::triggered, this, &MainWindow::openRecording);
     toolbar->addSeparator();
-    toolbar->addAction("◀ Prev");
-    toolbar->addAction("Next ▶");
+    auto* prevAct = toolbar->addAction("◀ Prev");
+    connect(prevAct, &QAction::triggered, this, &MainWindow::prevEvent);
+    auto* nextAct = toolbar->addAction("Next ▶");
+    connect(nextAct, &QAction::triggered, this, &MainWindow::nextEvent);
     toolbar->addSeparator();
-    toolbar->addAction("Search");
+    auto* searchAct = toolbar->addAction("Search");
+    connect(searchAct, &QAction::triggered, this, &MainWindow::doSearch);
     statusLabel_ = new QLabel("No recording loaded", this);
     statusLabel_->setStyleSheet("color: #9aa0a6; margin-left: 12px;");
     toolbar->addWidget(statusLabel_);
@@ -269,6 +278,13 @@ void MainWindow::buildUi() {
     el->addWidget(logEdit);
     outTabs->addTab(eventLogTab, "Event Log");
     auto* searchTab = new QWidget(this);
+    auto* searchLayout = new QVBoxLayout(searchTab);
+    searchEdit_ = new QLineEdit(this);
+    searchEdit_->setPlaceholderText("Search events...");
+    connect(searchEdit_, &QLineEdit::returnPressed, this, &MainWindow::doSearch);
+    searchLayout->addWidget(searchEdit_);
+    searchResults_ = new QListWidget(this);
+    searchLayout->addWidget(searchResults_, 1);
     outTabs->addTab(searchTab, "Search");
     auto* analysisTab = new QWidget(this);
     outTabs->addTab(analysisTab, "Analysis");
@@ -540,4 +556,81 @@ void MainWindow::showExecGraph() {
     view->fitInView(scene->itemsBoundingRect(), Qt::KeepAspectRatio);
     dlg->exec();
     delete dlg;
+}
+
+void MainWindow::prevEvent() {
+    if (recording_.events.empty()) return;
+    int row = eventTable_->currentRow();
+    if (row <= 0) row = 0; else row--;
+    eventTable_->selectRow(row);
+    onEventSelected(row);
+    timelineSlider_->setValue(row + 1);
+}
+
+void MainWindow::nextEvent() {
+    if (recording_.events.empty()) return;
+    int row = eventTable_->currentRow();
+    if (row < 0) row = 0;
+    else if (row < (int)recording_.events.size() - 1) row++;
+    eventTable_->selectRow(row);
+    onEventSelected(row);
+    timelineSlider_->setValue(row + 1);
+}
+
+void MainWindow::prevCheckpoint() {
+    if (recording_.checkpoints.empty() || recording_.events.empty()) return;
+    int row = eventTable_->currentRow();
+    if (row < 0) row = 0;
+    int target = -1;
+    for (int i = row; i >= 0; --i) {
+        if (recording_.events[i].type == EventType::Checkpoint) { target = i; break; }
+    }
+    if (target < 0) {
+        for (size_t i = 0; i < recording_.events.size(); ++i) {
+            if (recording_.events[i].type == EventType::Checkpoint) { target = (int)i; break; }
+        }
+    }
+    if (target >= 0) {
+        eventTable_->selectRow(target);
+        onEventSelected(target);
+        timelineSlider_->setValue(target + 1);
+    }
+}
+
+void MainWindow::nextCheckpoint() {
+    if (recording_.checkpoints.empty() || recording_.events.empty()) return;
+    int row = eventTable_->currentRow();
+    if (row < 0) row = 0;
+    int target = -1;
+    for (size_t i = row + 1; i < recording_.events.size(); ++i) {
+        if (recording_.events[i].type == EventType::Checkpoint) { target = (int)i; break; }
+    }
+    if (target < 0) {
+        for (int i = (int)recording_.events.size() - 1; i >= 0; --i) {
+            if (recording_.events[i].type == EventType::Checkpoint) { target = i; break; }
+        }
+    }
+    if (target >= 0) {
+        eventTable_->selectRow(target);
+        onEventSelected(target);
+        timelineSlider_->setValue(target + 1);
+    }
+}
+
+void MainWindow::doSearch() {
+    if (recording_.events.empty() || !searchEdit_ || !searchResults_) return;
+    QString text = searchEdit_->text();
+    if (text.isEmpty()) return;
+    searchResults_->clear();
+    EventLog log;
+    for (auto& e : recording_.events) log.append(e);
+    timeline::Timeline tl;
+    tl.set_log(&log);
+    auto ids = tl.find_events(text.toStdString());
+    for (auto id : ids) {
+        auto ev = log.by_id(id);
+        if (!ev) continue;
+        searchResults_->addItem(QString("%1: %2").arg(id).arg(event_type_name(ev->type)));
+    }
+    searchResults_->addItem(QString("Total matches: %1").arg(ids.size()));
 }
