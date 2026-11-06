@@ -39,17 +39,22 @@ ExecutionMetrics MetricsCalculator::compute(const EventLog& log) {
         prev_ts = ts;
     }
     m.unique_syscalls = m.syscall_counts.size();
-    // gaps stats
+    // gaps stats — only consider non-negative gaps (guard against non-monotonic clocks)
     if (!gaps.empty()) {
-        double sum = 0;
-        for (auto g : gaps) sum += (double)g;
-        m.mean_inter_event_gap_ns = sum / (double)gaps.size();
-        double var = 0;
-        for (auto g : gaps) {
-            double d = (double)g - m.mean_inter_event_gap_ns;
-            var += d*d;
+        std::vector<i64> valid_gaps;
+        valid_gaps.reserve(gaps.size());
+        for (auto g : gaps) { if (g >= 0) valid_gaps.push_back(g); }
+        if (!valid_gaps.empty()) {
+            double sum = 0;
+            for (auto g : valid_gaps) sum += static_cast<double>(g);
+            m.mean_inter_event_gap_ns = sum / static_cast<double>(valid_gaps.size());
+            double var = 0;
+            for (auto g : valid_gaps) {
+                double d = static_cast<double>(g) - m.mean_inter_event_gap_ns;
+                var += d * d;
+            }
+            m.std_inter_event_gap_ns = std::sqrt(var / static_cast<double>(valid_gaps.size()));
         }
-        m.std_inter_event_gap_ns = std::sqrt(var / (double)gaps.size());
     }
     // memory entropy over MemoryWrite events
     std::vector<u8> membytes;

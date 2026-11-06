@@ -173,6 +173,11 @@ def run_cli(args):
 def handle(msg):
     method = msg.get("method")
     mid = msg.get("id")
+    # Notifications (no id) — acknowledge silently
+    if mid is None:
+        if method == "notifications/initialized":
+            return None  # no response for notifications
+        return None
     if method == "initialize":
         return {
             "jsonrpc": "2.0",
@@ -225,8 +230,6 @@ def handle(msg):
             "id": mid,
             "result": {"content": [{"type": "text", "text": text}]},
         }
-    if mid is None:
-        return None
     return {"jsonrpc": "2.0", "id": mid, "error": {"code": -32601, "message": "Method not found"}}
 
 

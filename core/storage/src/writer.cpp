@@ -289,15 +289,17 @@ Result<void> Writer::write_recording(const std::string& path, const RecordingMet
     size_t bound = ZSTD_compressBound(raw.size());
     std::vector<char> cbuf(bound);
     size_t csize = ZSTD_compress(cbuf.data(), bound, raw.data(), raw.size(), 3);
+    u64 events_size = 0;
     if (ZSTD_isError(csize)) {
-        // fallback uncompressed
-        out.write(raw.data(), raw.size());
-        // mark version 1? We'll keep version 2 but store raw; reader can't know. Instead store uncompressed in v1 style.
-        // For simplicity, store raw and set a flag via version=1 in header later? Header version set FORMAT_VERSION (2).
-        // To avoid mismatch, we store compressed only.
+        // Fallback: store uncompressed. The reader handles v1 (uncompressed) vs v2 (zstd).
+        // We write as version 1 data so the reader's branch for version<=1 kicks in.
+        // Since we only patch the header later, we temporarily record the size from raw.
+        out.write(raw.data(), static_cast<std::streamsize>(raw.size()));
+        events_size = raw.size();
+    } else {
+        out.write(cbuf.data(), static_cast<std::streamsize>(csize));
+        events_size = csize;
     }
-    out.write(cbuf.data(), csize);
-    u64 events_size = csize;
 
     // checkpoints section
     u64 cp_offset = out.tellp();

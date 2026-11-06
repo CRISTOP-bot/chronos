@@ -69,10 +69,17 @@ cd build && ctest
 | `maps <pid>` | Read /proc maps |
 | `checkpoints <rec>` | List checkpoints |
 | `memdiff <rec> <a> <b>` | Compare memory between checkpoints |
-| `state <rec> <idx>` | Reconstruct variable state |
+| `state <rec> <idx>` | Reconstruct variable state at event index |
 | `search <rec> <text>` | Search events |
 | `branch <src> <dst> <label>` | Create an analytical branch |
+| `reconstruct <rec> <id>` | Reconstruct memory from a checkpoint |
+| `strings <rec> <id> [filter]` | Extract readable strings from a checkpoint |
+| `stats <rec>` | Compute execution metrics |
 | `export-html <rec> <out>` | Export HTML report |
+| `export-json <rec> <out>` | Export recording to JSON |
+| `project-create <dir> <name>` | Create a project |
+| `project-add <project.json> <rec>` | Add a recording to a project |
+| `project-info <project.json>` | Show project info |
 
 ## Project Structure
 

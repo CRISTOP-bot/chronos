@@ -48,19 +48,34 @@ std::vector<EventId> Timeline::find_events(const std::string& text) const {
     if (!log_) return out;
     auto snap = log_->snapshot();
     for (const auto& e : snap) {
-        // crude: search in event type name and variable names
         std::string hay = event_type_name(e.type);
-        if (e.type==EventType::VariableChange) {
+        if (e.type == EventType::VariableChange) {
             auto v = std::get<VariableEvent>(e.payload);
-            hay += " " + v.name + " " + v.new_value;
-        }
-        if (e.type==EventType::SyscallEnter || e.type==EventType::SyscallExit) {
+            hay += " " + v.name + " " + v.type_name + " " + v.old_value + " " + v.new_value;
+        } else if (e.type == EventType::SyscallEnter || e.type == EventType::SyscallExit) {
             auto s = std::get<SyscallEvent>(e.payload);
-            hay += " " + s.name;
-        }
-        if (e.type==EventType::FunctionEnter || e.type==EventType::FunctionExit) {
+            hay += " " + s.name + " " + s.result;
+            for (const auto& a : s.args) hay += " " + a;
+        } else if (e.type == EventType::FunctionEnter || e.type == EventType::FunctionExit) {
             auto f = std::get<FunctionEvent>(e.payload);
             hay += " " + f.name;
+            for (const auto& a : f.args) hay += " " + a;
+        } else if (e.type == EventType::Marker) {
+            auto m = std::get<MarkerEvent>(e.payload);
+            hay += " " + m.label + " " + m.note;
+        } else if (e.type == EventType::ExceptionThrown || e.type == EventType::ExceptionCaught) {
+            auto ex = std::get<ExceptionEvent>(e.payload);
+            hay += " " + ex.type_name + " " + ex.message;
+        } else if (e.type == EventType::ProcessStart || e.type == EventType::ProcessExit ||
+                   e.type == EventType::ThreadCreate || e.type == EventType::ThreadExit) {
+            auto p = std::get<ProcessEvent>(e.payload);
+            hay += " " + p.detail;
+        } else if (e.type == EventType::Checkpoint) {
+            auto c = std::get<CheckpointEvent>(e.payload);
+            hay += " " + c.label;
+        } else if (e.type == EventType::Custom) {
+            auto c = std::get<CustomEvent>(e.payload);
+            hay += " " + c.kind + " " + c.payload;
         }
         if (hay.find(text) != std::string::npos) out.push_back(e.id);
     }

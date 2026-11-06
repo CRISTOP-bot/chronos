@@ -5,7 +5,6 @@
 #include <mutex>
 #include <optional>
 #include <unordered_map>
-#include <unordered_map>
 
 namespace chronos {
 
@@ -42,6 +41,7 @@ private:
     mutable std::mutex mtx_;
     std::vector<Event> events_;
     std::unordered_map<EventType, std::vector<size_t>> type_indices_;
+    std::unordered_map<EventId, size_t> id_index_;  // O(1) lookup by EventId
     EventId next_id_ = 1;
 };
 
