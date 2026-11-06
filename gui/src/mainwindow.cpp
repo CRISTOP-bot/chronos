@@ -1,6 +1,8 @@
 #include "chronos/gui/mainwindow.h"
 #include "chronos/analysis/state_diff.h"
 #include "chronos/memory/strings.h"
+#include "chronos/instrumentation/ptrace_tracer.h"
+#include "chronos/recording/recording_engine.h"
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -55,6 +57,24 @@ void MainWindow::buildUi() {
     auto* fileMenu = menuBar->addMenu("File");
     auto* openAct = fileMenu->addAction("Open Recording...");
     connect(openAct, &QAction::triggered, this, &MainWindow::openRecording);
+    auto* traceAct = fileMenu->addAction("Trace Binary...");
+    connect(traceAct, &QAction::triggered, this, [this](){
+        QString path = QFileDialog::getOpenFileName(this, "Select Binary", QString(), "All Files (*)");
+        if (path.isEmpty()) return;
+        QString out = QFileDialog::getSaveFileName(this, "Save Recording", QString(), "CHRONOS (*.chronos)");
+        if (out.isEmpty()) return;
+        recording::RecordingEngine eng;
+        recording::SessionConfig cfg{"trace", path.toStdString(), 1};
+        auto sess = eng.create_session(cfg);
+        instrumentation::TraceConfig tcfg{path.toStdString(), {}, out.toStdString()};
+        instrumentation::PtraceTracer tracer;
+        auto res = tracer.trace(tcfg, *sess);
+        if (!res.ok()) { QMessageBox::critical(this, "Trace failed", QString::fromStdString(res.error().message)); return; }
+        auto save = sess->save(out.toStdString());
+        if (!save.ok()) { QMessageBox::critical(this, "Save failed", QString::fromStdString(save.error().message)); return; }
+        loadRecording(out);
+        statusBar()->showMessage(QString("Traced %1 events").arg(res.value()));
+    });
     fileMenu->addSeparator();
     auto* quitAct = fileMenu->addAction("Quit");
     connect(quitAct, &QAction::triggered, qApp, &QApplication::quit);
