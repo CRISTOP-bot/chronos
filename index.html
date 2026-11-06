@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHRONOS — Temporal Execution & Reconstruction Engine</title>
+  <meta name="description" content="Record, reconstruct and explore program executions over time. Real reverse-debugging and time-travel analysis for Linux x86_64." />
+  <link rel="icon" href="brand/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── NAV ─────────────────────────────────────────────────────────────── -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="CHRONOS home">
+        <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="60" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 118 150 H 252 V 292 H 300"/>
+            <path d="M 334 292 H 404 V 438 H 226"/>
+          </g>
+        </svg>
+        <span>CHRONOS</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#cli">CLI</a></li>
+        <li><a href="#mcp">MCP</a></li>
+        <li><a href="https://github.com/CRISTOP-bot/chronos" target="_blank" rel="noopener" class="nav-gh">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a></li>
+      </ul>
+      <button class="nav-burger" id="navBurger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── HERO ────────────────────────────────────────────────────────────── -->
+  <section class="hero" id="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <canvas id="heroCanvas"></canvas>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">Linux x86_64 · C++20 · Open Source</div>
+      <h1 class="hero-title">
+        Travel through<br/>
+        <span class="gradient-text">program time</span>
+      </h1>
+      <p class="hero-sub">
+        CHRONOS records, reconstructs and explores program executions over time.<br/>
+        Real reverse-debugging and time-travel analysis — not a debugger clone.
+      </p>
+      <div class="hero-cta">
+        <a href="https://github.com/CRISTOP-bot/chronos" target="_blank" rel="noopener" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          View on GitHub
+        </a>
+        <a href="#how-it-works" class="btn btn-ghost">See how it works →</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="stat-num">C++20</span><span class="stat-label">Modern standard</span></div>
+        <div class="hero-stat-div"></div>
+        <div class="hero-stat"><span class="stat-num">zstd</span><span class="stat-label">Compressed format</span></div>
+        <div class="hero-stat-div"></div>
+        <div class="hero-stat"><span class="stat-num">13</span><span class="stat-label">MCP tools</span></div>
+        <div class="hero-stat-div"></div>
+        <div class="hero-stat"><span class="stat-num">ptrace</span><span class="stat-label">Real recording</span></div>
+      </div>
+    </div>
+    <div class="hero-terminal" aria-label="Terminal demo">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="t-dot t-red"></span>
+          <span class="t-dot t-yellow"></span>
+          <span class="t-dot t-green"></span>
+          <span class="t-title">chronos_cli</span>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+          <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">chronos_cli trace /bin/ls recording.chronos</span></div>
+          <div class="t-line t-out">CHRONOS 0.1.0 - Temporal Execution &amp; Reconstruction Engine</div>
+          <div class="t-line t-out t-dim">Traced <span class="t-hl">83 events</span> → recording.chronos</div>
+          <div class="t-line t-blank"></div>
+          <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">chronos_cli info recording.chronos</span></div>
+          <div class="t-line t-out">name=<span class="t-hl">trace</span>  events=<span class="t-hl">88</span>  checkpoints=<span class="t-hl">5</span>  target=/bin/ls</div>
+          <div class="t-line t-out t-dim">  SyscallEnter: 41  SyscallExit: 40</div>
+          <div class="t-line t-out t-dim">  Checkpoint: 5    ProcessExit: 1</div>
+          <div class="t-line t-blank"></div>
+          <div class="t-line"><span class="t-prompt">$</span> <span class="t-cmd">chronos_cli memdiff recording.chronos 1 5</span></div>
+          <div class="t-line t-out">Comparing checkpoint <span class="t-hl">1</span> vs <span class="t-hl">5</span></div>
+          <div class="t-line t-out t-warn">  changed region 0x5606fcc1c000: 364 bytes differ</div>
+          <div class="t-line t-out t-warn">  added  region 0x7fc024387000 (8192 bytes)</div>
+          <div class="t-line"><span class="t-prompt">$</span> <span class="t-cursor">▋</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURES ────────────────────────────────────────────────────────── -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge">Features</div>
+        <h2>Everything you need to understand what happened</h2>
+        <p>CHRONOS combines low-level tracing with high-level analysis tools.</p>
+      </div>
+      <div class="features-grid">
+
+        <div class="feature-card" data-aos="fade-up">
+          <div class="feature-icon" style="--c:#4caf50">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          </div>
+          <h3>Real ptrace Recording</h3>
+          <p>Captures every syscall (enter + exit), process/thread lifecycle and memory maps using Linux <code>ptrace</code>. No instrumentation needed.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="60">
+          <div class="feature-icon" style="--c:#ffb300">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+          </div>
+          <h3>Temporal Checkpoints</h3>
+          <p>Automatic memory snapshots every 10 syscalls — full region capture with bytes, permissions and names. Compare any two points in time.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="120">
+          <div class="feature-icon" style="--c:#64b5f6">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+          </div>
+          <h3>State Reconstruction</h3>
+          <p>Replay variable changes forward to any event index. Diff two moments to see exactly what changed — added, removed, and mutated variables.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="0">
+          <div class="feature-icon" style="--c:#ce93d8">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11zm-9-7H7v-2h3V7h2v3h3v2h-3v3h-2v-3z"/></svg>
+          </div>
+          <h3>Memory Explorer</h3>
+          <p>Browse captured memory regions with hex dump viewer, ASCII preview and string extraction with filter. Inspect any checkpoint at byte level.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="60">
+          <div class="feature-icon" style="--c:#ef9a9a">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+          </div>
+          <h3>Binary Format v2</h3>
+          <p>Custom <code>.chronos</code> format with zstd-compressed events, CRC32 integrity, section offsets and versioned header. Fast to read, small on disk.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="120">
+          <div class="feature-icon" style="--c:#4682b4">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          </div>
+          <h3>Qt6 Desktop GUI</h3>
+          <p>Dark technical interface with visual timeline ruler, color-coded event table, inspector panel, memory viewer, execution graph and state diff.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="0">
+          <div class="feature-icon" style="--c:#80cbc4">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/></svg>
+          </div>
+          <h3>MCP Server</h3>
+          <p>13 tools exposed over stdio JSON-RPC so AI assistants can trace, search, reconstruct and export recordings without leaving their context.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="60">
+          <div class="feature-icon" style="--c:#a5d6a7">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>
+          </div>
+          <h3>HTML &amp; JSON Export</h3>
+          <p>Export any recording to a self-contained HTML report or structured JSON for further analysis. Branch recordings for parallel investigation.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-delay="120">
+          <div class="feature-icon" style="--c:#ffcc80">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+          </div>
+          <h3>Analytical Branches</h3>
+          <p>Fork a recording at any point to create independent investigation branches. Each branch is a full <code>.chronos</code> file with its own event log.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ─────────────────────────────────────────────────────── -->
+  <section class="section section-alt" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge">How it works</div>
+        <h2>From execution to insight</h2>
+        <p>Three steps to understand any program's behavior.</p>
+      </div>
+      <div class="steps">
+        <div class="step" data-aos="fade-right">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h3>Record</h3>
+            <p>CHRONOS forks the target binary and attaches with <code>ptrace(PTRACE_TRACEME)</code>. Every syscall enter/exit is captured with arguments and return values. Every 10 syscalls, full memory regions are snapshotted into a checkpoint.</p>
+            <div class="step-code">
+              <pre><code><span class="c-dim"># Trace any ELF binary</span>
+chronos_cli trace /usr/bin/curl recording.chronos
+
+<span class="c-green">Traced 2847 events → recording.chronos</span>
+<span class="c-dim">5 checkpoints · 18 unique syscalls</span></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step step-rev" data-aos="fade-left">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h3>Navigate</h3>
+            <p>Load the recording in the GUI or query it with the CLI. Jump forward/backward through the event timeline, jump between checkpoints, search for any syscall name, variable or function by text.</p>
+            <div class="step-code">
+              <pre><code><span class="c-dim"># Search for write syscalls</span>
+chronos_cli search recording.chronos write
+
+<span class="c-blue">matches=3</span>
+  <span class="c-dim">78 SyscallEnter · write</span>
+  <span class="c-dim">79 SyscallExit  · write → 0x1</span>
+  <span class="c-dim">81 SyscallEnter · write</span></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-aos="fade-right">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h3>Reconstruct</h3>
+            <p>Diff memory between any two checkpoints to see exactly which regions changed, how many bytes differ, and what new regions appeared. Reconstruct variable state at any event index and compare two moments.</p>
+            <div class="step-code">
+              <pre><code><span class="c-dim"># Compare first vs last checkpoint</span>
+chronos_cli memdiff recording.chronos 1 5
+
+<span class="c-yellow">changed 0x5606fcc1c000: 364 bytes differ</span>
+<span class="c-yellow">added   0x7fc024387000 (8192 bytes)</span>
+<span class="c-dim">removed 0x7fc02433a000 (8192 bytes)</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CLI REFERENCE ────────────────────────────────────────────────────── -->
+  <section class="section" id="cli">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge">CLI Reference</div>
+        <h2>Every command at a glance</h2>
+        <p>All commands read and write the <code>.chronos</code> binary format.</p>
+      </div>
+      <div class="cli-table-wrap">
+        <table class="cli-table">
+          <thead>
+            <tr><th>Command</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>trace &lt;bin&gt; [out]</code></td><td>Trace a binary with ptrace, save recording</td></tr>
+            <tr><td><code>info &lt;rec&gt;</code></td><td>Show recording stats — events, checkpoints, types</td></tr>
+            <tr><td><code>search &lt;rec&gt; &lt;text&gt;</code></td><td>Search events by name, syscall, variable or detail</td></tr>
+            <tr><td><code>checkpoints &lt;rec&gt;</code></td><td>List all checkpoints with IDs and region counts</td></tr>
+            <tr><td><code>memdiff &lt;rec&gt; &lt;a&gt; &lt;b&gt;</code></td><td>Compare memory between two checkpoint IDs</td></tr>
+            <tr><td><code>reconstruct &lt;rec&gt; &lt;id&gt;</code></td><td>Reconstruct memory map from a checkpoint</td></tr>
+            <tr><td><code>strings &lt;rec&gt; &lt;id&gt; [filter]</code></td><td>Extract readable strings from a checkpoint</td></tr>
+            <tr><td><code>state &lt;rec&gt; &lt;idx&gt;</code></td><td>Reconstruct variable state at event index</td></tr>
+            <tr><td><code>stats &lt;rec&gt;</code></td><td>Execution metrics — events/sec, syscall counts, entropy</td></tr>
+            <tr><td><code>maps &lt;pid&gt;</code></td><td>Read live /proc/&lt;pid&gt;/maps</td></tr>
+            <tr><td><code>branch &lt;src&gt; &lt;dst&gt; &lt;label&gt;</code></td><td>Fork a recording into a new investigation branch</td></tr>
+            <tr><td><code>export-html &lt;rec&gt; &lt;out&gt;</code></td><td>Export self-contained HTML report</td></tr>
+            <tr><td><code>export-json &lt;rec&gt; &lt;out&gt;</code></td><td>Export recording to structured JSON</td></tr>
+            <tr><td><code>project-create &lt;dir&gt; &lt;name&gt;</code></td><td>Create a project with multiple recordings</td></tr>
+            <tr><td><code>project-add &lt;project.json&gt; &lt;rec&gt;</code></td><td>Add a recording to a project</td></tr>
+            <tr><td><code>project-info &lt;project.json&gt;</code></td><td>List recordings in a project</td></tr>
+            <tr><td><code>demo [out]</code></td><td>Write a demo recording and reopen it</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MCP ──────────────────────────────────────────────────────────────── -->
+  <section class="section section-alt" id="mcp">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge">MCP</div>
+        <h2>AI-native tooling</h2>
+        <p>CHRONOS ships a Model Context Protocol server so AI assistants can use it as a tool.</p>
+      </div>
+      <div class="mcp-layout">
+        <div class="mcp-info" data-aos="fade-right">
+          <p>Start the MCP server with a single command. Any MCP-compatible client (Kiro, Claude Desktop, OpenCode…) can then trace binaries, search recordings and reconstruct memory without leaving the conversation.</p>
+          <div class="mcp-code">
+            <pre><code><span class="c-dim"># Launch the MCP server</span>
+./mcp.sh /path/to/chronos_cli
+
+<span class="c-dim"># Or set CHRONOS_CLI and run directly</span>
+<span class="c-green">export</span> CHRONOS_CLI=./build/tools/chronos_cli
+python3 mcp/mcp_server.py</code></pre>
+          </div>
+          <p style="margin-top:1.5rem;">Add it to your MCP config:</p>
+          <div class="mcp-code">
+            <pre><code>{
+  <span class="c-blue">"mcpServers"</span>: {
+    <span class="c-blue">"chronos"</span>: {
+      <span class="c-blue">"command"</span>: <span class="c-green">"/path/to/chronos/mcp.sh"</span>,
+      <span class="c-blue">"args"</span>: [<span class="c-green">"/path/to/chronos_cli"</span>]
+    }
+  }
+}</code></pre>
+          </div>
+        </div>
+        <div class="mcp-tools" data-aos="fade-left">
+          <h3>Exposed tools</h3>
+          <ul class="mcp-tool-list">
+            <li><span class="tool-name">chronos_trace</span><span class="tool-desc">Trace a binary, save recording</span></li>
+            <li><span class="tool-name">chronos_info</span><span class="tool-desc">Stats on events and checkpoints</span></li>
+            <li><span class="tool-name">chronos_search</span><span class="tool-desc">Search events by text</span></li>
+            <li><span class="tool-name">chronos_checkpoints</span><span class="tool-desc">List all checkpoints</span></li>
+            <li><span class="tool-name">chronos_memdiff</span><span class="tool-desc">Diff memory between checkpoints</span></li>
+            <li><span class="tool-name">chronos_reconstruct</span><span class="tool-desc">Reconstruct memory from checkpoint</span></li>
+            <li><span class="tool-name">chronos_strings</span><span class="tool-desc">Extract strings from checkpoint</span></li>
+            <li><span class="tool-name">chronos_state</span><span class="tool-desc">Variable state at event index</span></li>
+            <li><span class="tool-name">chronos_stats</span><span class="tool-desc">Execution metrics</span></li>
+            <li><span class="tool-name">chronos_export_html</span><span class="tool-desc">Export HTML report</span></li>
+            <li><span class="tool-name">chronos_export_json</span><span class="tool-desc">Export to JSON</span></li>
+            <li><span class="tool-name">chronos_branch</span><span class="tool-desc">Fork recording into branch</span></li>
+            <li><span class="tool-name">chronos_project_info</span><span class="tool-desc">Show project info</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BUILD ────────────────────────────────────────────────────────────── -->
+  <section class="section" id="build">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge">Quick Start</div>
+        <h2>Up and running in minutes</h2>
+      </div>
+      <div class="build-steps">
+        <div class="build-step" data-aos="fade-up">
+          <div class="build-step-num">1</div>
+          <h4>Clone</h4>
+          <pre><code>git clone https://github.com/CRISTOP-bot/chronos.git
+cd chronos</code></pre>
+        </div>
+        <div class="build-arrow">→</div>
+        <div class="build-step" data-aos="fade-up" data-aos-delay="80">
+          <div class="build-step-num">2</div>
+          <h4>Build</h4>
+          <pre><code>cmake -S . -B build \
+  -DCHRONOS_BUILD_GUI=ON
+cmake --build build -j$(nproc)</code></pre>
+        </div>
+        <div class="build-arrow">→</div>
+        <div class="build-step" data-aos="fade-up" data-aos-delay="160">
+          <div class="build-step-num">3</div>
+          <h4>Trace</h4>
+          <pre><code>./build/tools/chronos_cli \
+  trace /bin/ls out.chronos
+./build/gui/chronos_gui out.chronos</code></pre>
+        </div>
+      </div>
+      <div class="build-deps">
+        <span class="dep-label">Dependencies:</span>
+        <span class="dep">CMake 3.20+</span>
+        <span class="dep">GCC/Clang C++20</span>
+        <span class="dep">zstd</span>
+        <span class="dep">zlib</span>
+        <span class="dep">Qt6 Widgets <em>(GUI only)</em></span>
+        <span class="dep">GoogleTest <em>(tests)</em></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ───────────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <svg class="nav-logo-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="60" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 118 150 H 252 V 292 H 300"/>
+            <path d="M 334 292 H 404 V 438 H 226"/>
+          </g>
+        </svg>
+        <span>CHRONOS</span>
+      </div>
+      <p class="footer-desc">Temporal Execution &amp; Reconstruction Engine<br/>Linux x86_64 · C++20 · MIT License</p>
+      <div class="footer-links">
+        <a href="https://github.com/CRISTOP-bot/chronos" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/CRISTOP-bot/chronos/blob/main/README.md" target="_blank" rel="noopener">Docs</a>
+        <a href="https://github.com/CRISTOP-bot/chronos/issues" target="_blank" rel="noopener">Issues</a>
+        <a href="https://github.com/CRISTOP-bot/chronos/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+      </div>
+      <p class="footer-copy">© 2026 CRISTOP-bot. Released under the MIT License.</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
