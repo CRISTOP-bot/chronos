@@ -26,6 +26,7 @@ private slots:
     void onTimelineChanged(int value);
     void onEventSelected(int row);
     void runStateDiff();
+    void showExecGraph();
 
 private:
     void buildUi();

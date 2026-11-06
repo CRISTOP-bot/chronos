@@ -2,6 +2,7 @@
 #include "chronos/analysis/state_diff.h"
 #include <vector>
 #include <utility>
+#include <algorithm>
 #include <QFileDialog>
 #include <QTableWidget>
 #include <QSlider>
@@ -19,6 +20,13 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QFont>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsEllipseItem>
+#include <QGraphicsTextItem>
+#include <QGraphicsLineItem>
+#include <QDialog>
+#include <QVBoxLayout>
 
 using namespace chronos;
 using namespace chronos::gui;
@@ -33,6 +41,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 void MainWindow::buildUi() {
     auto* menuBar = new QMenuBar(this);
     auto* fileMenu = menuBar->addMenu("File");
+    auto* viewMenu = menuBar->addMenu("View");
+    auto* graphAct = viewMenu->addAction("Execution Graph...");
+    connect(graphAct, &QAction::triggered, this, &MainWindow::showExecGraph);
     auto* openAct = fileMenu->addAction("Open Recording...");
     connect(openAct, &QAction::triggered, this, &MainWindow::openRecording);
     fileMenu->addSeparator();
@@ -333,4 +344,51 @@ void MainWindow::runStateDiff() {
         .arg(QString::fromStdString(c.second.first))
         .arg(QString::fromStdString(c.second.second));
     diffEdit_->setPlainText(out);
+}
+
+void MainWindow::showExecGraph() {
+    if (recording_.events.empty()) { QMessageBox::information(this, "Execution Graph", "No recording loaded."); return; }
+    auto* dlg = new QDialog(this);
+    dlg->setWindowTitle("Execution Graph");
+    dlg->resize(900, 700);
+    auto* layout = new QVBoxLayout(dlg);
+    auto* view = new QGraphicsView(dlg);
+    auto* scene = new QGraphicsScene(dlg);
+    view->setScene(scene);
+    view->setRenderHint(QPainter::Antialiasing);
+    layout->addWidget(view);
+
+    // Build call tree positions
+    struct Node { QGraphicsEllipseItem* item; double x,y; };
+    std::vector<Node> nodes;
+    std::vector<QGraphicsLineItem*> edges;
+    std::vector<int> stack;
+    double x = 50, y = 50;
+    int depth = 0;
+    double stepX = 160, stepY = 80;
+    for (size_t i = 0; i < recording_.events.size(); ++i) {
+        const auto& ev = recording_.events[i];
+        if (ev.type == EventType::FunctionEnter) {
+            auto f = std::get<FunctionEvent>(ev.payload);
+            double px = 50 + depth * stepX;
+            double py = 50 + nodes.size() * 30; // vertical by order
+            auto* ellipse = scene->addEllipse(px, py, 120, 40, QPen(QColor(0x46,0x82,0xb4)), QBrush(QColor(0x1e,0x22,0x28)));
+            auto* text = scene->addText(QString::fromStdString(f.name), QFont("Monospace", 9));
+            text->setDefaultTextColor(QColor(0xdc,0xe0,0xe8));
+            text->setPos(px+4, py+10);
+            nodes.push_back({ellipse, px, py});
+            if (!stack.empty()) {
+                int parentIdx = stack.back();
+                auto* line = scene->addLine(nodes[parentIdx].x+60, nodes[parentIdx].y+40, px+60, py, QPen(QColor(0x9a,0xa0,0xa6)));
+                edges.push_back(line);
+            }
+            stack.push_back((int)nodes.size()-1);
+            depth++;
+        } else if (ev.type == EventType::FunctionExit) {
+            if (!stack.empty()) { stack.pop_back(); depth = std::max(0, depth-1); }
+        }
+    }
+    view->fitInView(scene->itemsBoundingRect(), Qt::KeepAspectRatio);
+    dlg->exec();
+    delete dlg;
 }
