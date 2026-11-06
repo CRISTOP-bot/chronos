@@ -8,6 +8,7 @@
 #include "chronos/memory/checkpoint_restore.h"
 #include "chronos/timeline/timeline.h"
 #include "chronos/analysis/state_diff.h"
+#include "nlohmann/json.hpp"
 #include <iostream>
 #include <string>
 #include <map>
@@ -272,50 +273,46 @@ int main(int argc, char** argv) {
         auto rr = storage::Reader::read_recording(argv[2]);
         if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
         auto rec = rr.value();
-        auto esc = [](const std::string& s) {
-            std::string o;
-            for (char c : s) {
-                switch (c) {
-                    case '\"': o += "\\\""; break;
-                    case '\\': o += "\\\\"; break;
-                    case '\n': o += "\\n"; break;
-                    case '\r': o += "\\r"; break;
-                    case '\t': o += "\\t"; break;
-                    default: o += c; break;
-                }
-            }
-            return o;
+        nlohmann::json j;
+        j["metadata"] = {
+            {"name", rec.metadata.name},
+            {"target", rec.metadata.target_path},
+            {"events", rec.events.size()},
+            {"checkpoints", rec.checkpoints.size()}
         };
-        std::ofstream out(argv[3]);
-        out << "{\n";
-        out << "  \"metadata\": {\"name\": \"" << esc(rec.metadata.name) << "\", \"target\": \"" << esc(rec.metadata.target_path)
-            << "\", \"events\": " << rec.events.size() << ", \"checkpoints\": " << rec.checkpoints.size() << "},\n";
-        out << "  \"events\": [\n";
+        nlohmann::json evs = nlohmann::json::array();
         for (size_t i=0;i<rec.events.size();++i) {
             const auto& e = rec.events[i];
-            out << "    {\"index\": " << (i+1) << ", \"type\": \"" << esc(event_type_name(e.type)) << "\", \"pid\": " << e.pid
-                << ", \"tid\": " << e.tid << ", \"sequence\": " << e.time.sequence;
+            nlohmann::json je;
+            je["index"] = i+1;
+            je["type"] = event_type_name(e.type);
+            je["pid"] = e.pid;
+            je["tid"] = e.tid;
+            je["sequence"] = e.time.sequence;
             if (e.type == EventType::SyscallEnter || e.type == EventType::SyscallExit) {
                 auto s = std::get<SyscallEvent>(e.payload);
-                out << ", \"syscall\": \"" << esc(s.name) << "\", \"result\": \"" << esc(s.result) << "\"";
+                je["syscall"] = s.name;
+                je["result"] = s.result;
             } else if (e.type == EventType::VariableChange) {
                 auto v = std::get<VariableEvent>(e.payload);
-                out << ", \"variable\": \"" << esc(v.name) << "\", \"value\": \"" << esc(v.new_value) << "\"";
+                je["variable"] = v.name;
+                je["value"] = v.new_value;
             }
-            out << "}";
-            if (i+1 < rec.events.size()) out << ",";
-            out << "\n";
+            evs.push_back(je);
         }
-        out << "  ],\n";
-        out << "  \"checkpoints\": [\n";
-        for (size_t i=0;i<rec.checkpoints.size();++i) {
-            const auto& cp = rec.checkpoints[i];
-            out << "    {\"id\": " << cp.id << ", \"time\": " << cp.time_sequence << ", \"label\": \"" << esc(cp.label)
-                << "\", \"regions\": " << cp.regions.size() << "}";
-            if (i+1 < rec.checkpoints.size()) out << ",";
-            out << "\n";
+        j["events"] = evs;
+        nlohmann::json cps = nlohmann::json::array();
+        for (auto& cp : rec.checkpoints) {
+            cps.push_back({
+                {"id", cp.id},
+                {"time", cp.time_sequence},
+                {"label", cp.label},
+                {"regions", cp.regions.size()}
+            });
         }
-        out << "  ]\n}\n";
+        j["checkpoints"] = cps;
+        std::ofstream out(argv[3]);
+        out << j.dump(2) << "\n";
         out.close();
         std::cout << "Exported JSON to " << argv[3] << "\n";
         return 0;

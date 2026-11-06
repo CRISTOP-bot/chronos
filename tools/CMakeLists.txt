@@ -1,3 +1,3 @@
 add_executable(chronos_cli main.cpp)
 target_link_libraries(chronos_cli PRIVATE chronos_core chronos_instrumentation)
-target_include_directories(chronos_cli PRIVATE ${CMAKE_SOURCE_DIR}/instrumentation/include)
+target_include_directories(chronos_cli PRIVATE ${CMAKE_SOURCE_DIR}/instrumentation/include ${CMAKE_SOURCE_DIR}/third_party)
