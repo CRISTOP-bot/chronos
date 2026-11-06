@@ -13,6 +13,7 @@ add_library(chronos_core STATIC
   memory/src/region.cpp
   memory/src/checkpoint_restore.cpp
   memory/src/proc_maps.cpp
+  memory/src/strings.cpp
   timeline/src/timeline.cpp
   analysis/src/state_diff.cpp
   analysis/src/metrics.cpp

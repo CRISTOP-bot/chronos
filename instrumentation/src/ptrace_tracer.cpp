@@ -109,7 +109,10 @@ Result<u64> PtraceTracer::trace(TraceConfig cfg, recording::Session& session) {
                                 cr.base = r.base; cr.size = r.size; cr.name = r.name;
                                 cr.readable = r.readable; cr.writable = r.writable; cr.executable = r.executable;
                                 if (r.readable && r.size > 0) {
-                                    u64 toread = r.size < 4096 ? r.size : 4096;
+                                    // Capture the full mapped region (bounded to avoid OOM on huge mappings).
+                                    const u64 MAX_REGION_BYTES = 16 * 1024 * 1024; // 16 MiB per region
+                                    u64 toread = r.size;
+                                    if (toread > MAX_REGION_BYTES) toread = MAX_REGION_BYTES;
                                     auto br = memory::read_proc_mem(pid, r.base, toread);
                                     if (br.ok()) cr.bytes = br.value();
                                 }

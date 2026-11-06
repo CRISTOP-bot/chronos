@@ -6,6 +6,7 @@
 #include "chronos/instrumentation/ptrace_tracer.h"
 #include "chronos/memory/proc_maps.h"
 #include "chronos/memory/checkpoint_restore.h"
+#include "chronos/memory/strings.h"
 #include "chronos/timeline/timeline.h"
 #include "chronos/analysis/state_diff.h"
 #include "chronos/analysis/metrics.h"
@@ -16,6 +17,7 @@
 #include <algorithm>
 #include <fstream>
 #include <filesystem>
+#include <set>
 
 int main(int argc, char** argv) {
     using namespace chronos;
@@ -372,6 +374,47 @@ int main(int argc, char** argv) {
         for (auto& kv : m.syscall_counts) std::cout << "  " << kv.first << ": " << kv.second << "\n";
         std::cout << "Events by type:\n";
         for (auto& kv : m.events_by_type) std::cout << "  " << kv.first << ": " << kv.second << "\n";
+        return 0;
+    }
+    if (cmd == "reconstruct") {
+        if (argc < 4) { std::cerr << "Usage: chronos_cli reconstruct <recording> <checkpointId>\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        u64 id = std::stoull(argv[3]);
+        const storage::CheckpointRecord* cp = nullptr;
+        for (auto& c : rec.checkpoints) if (c.id == id) { cp = &c; break; }
+        if (!cp) { std::cerr << "checkpoint not found\n"; return 1; }
+        auto res = memory::CheckpointRestorer::restore(*cp);
+        if (!res.ok()) { std::cerr << "restore failed: " << res.error().message << "\n"; return 1; }
+        auto mm = res.value();
+        std::cout << "Reconstructed checkpoint " << id << " (" << mm.regions().size() << " regions)\\n";
+        for (auto& r : mm.regions()) {
+            std::cout << "  0x" << std::hex << r.base << std::dec << " size=" << r.size
+                      << " captured=" << r.data.size() << " " << r.name << "\\n";
+        }
+        return 0;
+    }
+    if (cmd == "strings") {
+        if (argc < 4) { std::cerr << "Usage: chronos_cli strings <recording> <checkpointId> [filter]\n"; return 1; }
+        auto rr = storage::Reader::read_recording(argv[2]);
+        if (!rr.ok()) { std::cerr << "read failed: " << rr.error().message << "\n"; return 1; }
+        auto rec = rr.value();
+        u64 id = std::stoull(argv[3]);
+        const storage::CheckpointRecord* cp = nullptr;
+        for (auto& c : rec.checkpoints) if (c.id == id) { cp = &c; break; }
+        if (!cp) { std::cerr << "checkpoint not found\n"; return 1; }
+        std::string filter = (argc >= 5) ? argv[4] : "";
+        std::set<std::string> seen;
+        for (auto& r : cp->regions) {
+            auto strs = memory::extract_strings(r.bytes);
+            for (auto& s : strs) {
+                if (!filter.empty() && s.find(filter) == std::string::npos) continue;
+                if (seen.count(s)) continue;
+                seen.insert(s);
+                std::cout << s << "\n";
+            }
+        }
         return 0;
     }
     std::cerr << "Unknown command: " << cmd << "\n";

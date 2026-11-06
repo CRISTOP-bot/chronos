@@ -3,6 +3,8 @@
 #include <QString>
 #include <QSplitter>
 #include <QComboBox>
+#include <QLineEdit>
+#include <vector>
 #include "chronos/storage/writer.h"
 #include "chronos/events/event_log.h"
 #include "chronos/timeline/timeline.h"
@@ -53,6 +55,9 @@ private:
     QTreeWidget* execGraphTree_ = nullptr;
     QPlainTextEdit* diffEdit_ = nullptr;
     QPlainTextEdit* hexView_ = nullptr;
+    QLineEdit* stringsFilter_ = nullptr;
+    QPlainTextEdit* stringsView_ = nullptr;
+    std::vector<std::string> currentStrings_;
     QPushButton* diffButton_ = nullptr;
     QPushButton* diffAButton_ = nullptr;
     QPushButton* diffBButton_ = nullptr;

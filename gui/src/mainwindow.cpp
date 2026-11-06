@@ -1,5 +1,6 @@
 #include "chronos/gui/mainwindow.h"
 #include "chronos/analysis/state_diff.h"
+#include "chronos/memory/strings.h"
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -109,6 +110,20 @@ void MainWindow::buildUi() {
             QByteArray ba(reinterpret_cast<const char*>(r.bytes.data()), (int)r.bytes.size());
             item->setData(0, Qt::UserRole, ba);
         }
+        // Extract strings from all regions
+        std::vector<u8> allbytes;
+        for (auto& r : cp.regions) {
+            allbytes.insert(allbytes.end(), r.bytes.begin(), r.bytes.end());
+        }
+        currentStrings_ = memory::extract_strings(allbytes);
+        // apply filter
+        QString filter = stringsFilter_ ? stringsFilter_->text() : QString();
+        QString text;
+        for (auto& s : currentStrings_) {
+            if (!filter.isEmpty() && QString::fromStdString(s).indexOf(filter, 0, Qt::CaseInsensitive) < 0) continue;
+            text += QString::fromStdString(s) + "\\n";
+        }
+        if (stringsView_) stringsView_->setPlainText(text);
     });
     memLayout->addWidget(checkpointCombo_);
     memoryTree_ = new QTreeWidget(this);
@@ -139,6 +154,23 @@ void MainWindow::buildUi() {
     hexView_->setFont(QFont("Monospace", 9));
     hexView_->setMaximumHeight(200);
     memLayout->addWidget(hexView_);
+    stringsFilter_ = new QLineEdit(this);
+    stringsFilter_->setPlaceholderText("Filter strings...");
+    connect(stringsFilter_, &QLineEdit::textChanged, this, [this](const QString& txt){
+        if (!stringsView_) return;
+        QString text;
+        for (auto& s : currentStrings_) {
+            if (!txt.isEmpty() && QString::fromStdString(s).indexOf(txt, 0, Qt::CaseInsensitive) < 0) continue;
+            text += QString::fromStdString(s) + "\\n";
+        }
+        stringsView_->setPlainText(text);
+    });
+    memLayout->addWidget(stringsFilter_);
+    stringsView_ = new QPlainTextEdit(this);
+    stringsView_->setReadOnly(true);
+    stringsView_->setFont(QFont("Monospace", 9));
+    stringsView_->setMaximumHeight(160);
+    memLayout->addWidget(stringsView_);
     rightTabs->addTab(memTab, "Memory");
 
     // Tab: Calls & Graph
